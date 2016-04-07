@@ -163,7 +163,6 @@ instance Elt a => Unlift Exp (HSV (Exp a)) where
                       v = Exp $ ZeroTupIdx `Prj` c
                   in HSV h s v
 
-{--
 instance Num a => Num (HSV a) where
   (+) (HSV h1 s1 v1 ) (HSV h2 s2 v2)
         = HSV (h1 + h2) (s1 + s2) (v1 + v2)
@@ -193,7 +192,6 @@ instance (Elt a, IsNum a) => Num (Exp (HSV a)) where
   signum        = lift1 (signum :: HSV (Exp a) -> HSV (Exp a))
   fromInteger i = let f = constant (fromInteger i)
                   in lift $ HSV f f f
---}
 
 
 -- Named colours

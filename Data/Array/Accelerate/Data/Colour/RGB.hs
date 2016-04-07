@@ -136,7 +136,6 @@ instance Elt a => Unlift Exp (RGB (Exp a)) where
                       b = Exp $ ZeroTupIdx `Prj` c
                   in RGB r g b
 
-{--
 instance Num a => Num (RGB a) where
   (+) (RGB r1 g1 b1 ) (RGB r2 g2 b2)
         = RGB (r1 + r2) (g1 + g2) (b1 + b2)
@@ -166,7 +165,6 @@ instance (Elt a, IsNum a) => Num (Exp (RGB a)) where
   signum        = lift1 (signum :: RGB (Exp a) -> RGB (Exp a))
   fromInteger i = let f = constant (fromInteger i)
                   in lift $ RGB f f f
---}
 
 
 -- Named colours
