@@ -26,7 +26,12 @@ library
 
   ghc-options:        -Wall
 
-  -- exposed-modules:
+  exposed-modules:
+      Data.Array.Accelerate.Data.Colour.RGB
+      Data.Array.Accelerate.Data.Colour.RGBA
+      Data.Array.Accelerate.Data.Colour.SRGB
+      Data.Array.Accelerate.Data.Colour.Names
+
   -- other-modules:
 
 source-repository head
