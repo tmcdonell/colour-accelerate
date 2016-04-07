@@ -6,7 +6,7 @@
 {-# LANGUAGE ScopedTypeVariables   #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE UndecidableInstances  #-}
-
+-- |
 -- Module      : Data.Array.Accelerate.Data.Colour.ARGB
 -- Copyright   : [2016] Trevor L. McDonell
 -- License     : BSD3
@@ -18,7 +18,7 @@
 -- RGBA quadruples for an unspecified colour space
 --
 
-module Data.Array.Accelerate.Data.Colour.ARGB (
+module Data.Array.Accelerate.Data.Colour.RGBA (
 
   Colour,
   RGBA(..),

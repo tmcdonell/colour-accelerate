@@ -6,7 +6,7 @@
 {-# LANGUAGE ScopedTypeVariables   #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE UndecidableInstances  #-}
-
+-- |
 -- Module      : Data.Array.Accelerate.Data.Colour.RGB
 -- Copyright   : [2016] Trevor L. McDonell
 -- License     : BSD3
@@ -45,7 +45,10 @@ type Colour = RGB Float
 -- | Construct an RGB colour from individual channel components. The components
 -- will be clamped to the range [0..1].
 --
-rgb :: Exp Float -> Exp Float -> Exp Float -> Exp Colour
+rgb :: Exp Float        -- ^ red component
+    -> Exp Float        -- ^ green component
+    -> Exp Float        -- ^ blue component
+    -> Exp Colour
 rgb r g b
   = clamp
   $ lift (RGB r g b)
@@ -53,7 +56,10 @@ rgb r g b
 
 -- | Construct a colour from 8-bit-per-channel colour components.
 --
-rgb8 :: Exp Word8 -> Exp Word8 -> Exp Word8 -> Exp Colour
+rgb8 :: Exp Word8       -- ^ red component
+     -> Exp Word8       -- ^ green component
+     -> Exp Word8       -- ^ blue component
+     -> Exp Colour
 rgb8 r g b
   = lift
   $ RGB (A.fromIntegral r / 255)

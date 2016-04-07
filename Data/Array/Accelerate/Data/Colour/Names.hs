@@ -1,3 +1,4 @@
+-- |
 -- Module      : Data.Array.Accelerate.Data.Colour.Names
 -- Copyright   : [2016] Trevor L. McDonell
 -- License     : BSD3

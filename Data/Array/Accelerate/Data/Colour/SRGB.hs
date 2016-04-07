@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ViewPatterns        #-}
-
+-- |
 -- Module      : Data.Array.Accelerate.Data.Colour.SRGB
 -- Copyright   : [2016] Trevor L. McDonell
 -- License     : BSD3
