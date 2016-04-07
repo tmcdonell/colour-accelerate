@@ -199,6 +199,7 @@ instance (Elt a, IsNum a) => Num (Exp (HSV a)) where
 -- Named colours
 -- -------------
 
+{--
 instance NamedColour (HSV Float) where
   -- Whites
   antiqueWhite      = fromRGB antiqueWhite
@@ -411,4 +412,5 @@ instance NamedColour (HSV Float) where
   violetRed         = fromRGB violetRed
   violetRedmedium   = fromRGB violetRedmedium
   violetRedPale     = fromRGB violetRedPale
+--}
 
