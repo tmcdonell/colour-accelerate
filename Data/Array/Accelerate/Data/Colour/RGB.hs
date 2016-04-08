@@ -32,14 +32,14 @@ module Data.Array.Accelerate.Data.Colour.RGB (
 
 ) where
 
-import Data.Array.Accelerate                    as A
+import Data.Array.Accelerate                              as A
 import Data.Array.Accelerate.Smart
-import Data.Array.Accelerate.Product            ( TupleIdx(..), IsProduct(..) )
-import Data.Array.Accelerate.Array.Sugar        ( Elt(..), EltRepr, Tuple(..) )
+import Data.Array.Accelerate.Product                      ( TupleIdx(..), IsProduct(..) )
+import Data.Array.Accelerate.Array.Sugar                  ( Elt(..), EltRepr, Tuple(..) )
 
 import Data.Array.Accelerate.Data.Colour.Names
+import Data.Array.Accelerate.Data.Colour.Internal.Pack
 
-import Data.Bits
 import Data.Typeable
 
 
@@ -108,6 +108,51 @@ blend m1 m2 c1 c2 =
       (sqrt (m1' * b1s + m2' * b2s))
 
 
+-- Packed representation
+-- ---------------------
+
+-- | Convert a Colour into a packed-word RGBA representation
+--
+packRGB :: Exp Colour -> Exp Word32
+packRGB (unlift -> RGB r g b) = pack8 (word8OfFloat r) (word8OfFloat g) (word8OfFloat b) 0xFF
+
+-- | Convert a colour into a packed-word ABGR representation
+--
+packBGR :: Exp Colour -> Exp Word32
+packBGR (unlift -> RGB r g b) = pack8 0xFF (word8OfFloat b) (word8OfFloat g) (word8OfFloat r)
+
+packRGB8 :: Exp (RGB Word8) -> Exp Word32
+packRGB8 (unlift -> RGB r g b) = pack8 r g b 0xFF
+
+packBGR8 :: Exp (RGB Word8) -> Exp Word32
+packBGR8 (unlift -> RGB r g b) = pack8 0xff b g r
+
+
+-- | Convert a colour from a packed-word RGBA representation
+--
+unpackRGB :: Exp Word32 -> Exp Colour
+unpackRGB w =
+  let (r,g,b::Exp Word8,_::Exp Word8) = unlift (unpack8 w)
+  in  rgb8 r g b
+
+-- | Convert a colour from a packed-word ABGR representation
+--
+unpackBGR :: Exp Word32 -> Exp Colour
+unpackBGR w =
+  let (_::Exp Word8,b::Exp Word8,g,r) = unlift (unpack8 w)
+  in  rgb8 r g b
+
+unpackRGB8 :: Exp Word32 -> Exp (RGB Word8)
+unpackRGB8 w =
+  let (r,g,b::Exp Word8,_::Exp Word8) = unlift (unpack8 w)
+  in  lift $ RGB r g b
+
+unpackBGR8 :: Exp Word32 -> Exp (RGB Word8)
+unpackBGR8 w =
+  let (_::Exp Word8,b::Exp Word8,g,r) = unlift (unpack8 w)
+  in  lift $ RGB r g b
+
+
 -- Accelerate bits
 -- ---------------
 
@@ -170,78 +215,6 @@ instance (Elt a, IsNum a) => Num (Exp (RGB a)) where
   signum        = lift1 (signum :: RGB (Exp a) -> RGB (Exp a))
   fromInteger i = let f = constant (fromInteger i)
                   in lift $ RGB f f f
-
-
--- Packed representation
--- ---------------------
-
--- | Convert a Colour into a packed-word RGBA representation
---
-packRGB :: Exp Colour -> Exp Word32
-packRGB (unlift -> RGB r g b) = pack8 (word8OfFloat r) (word8OfFloat g) (word8OfFloat b) 0xFF
-
--- | Convert a colour into a packed-word ABGR representation
---
-packBGR :: Exp Colour -> Exp Word32
-packBGR (unlift -> RGB r g b) = pack8 0xFF (word8OfFloat b) (word8OfFloat g) (word8OfFloat r)
-
-packRGB8 :: Exp (RGB Word8) -> Exp Word32
-packRGB8 (unlift -> RGB r g b) = pack8 r g b 0xFF
-
-packBGR8 :: Exp (RGB Word8) -> Exp Word32
-packBGR8 (unlift -> RGB r g b) = pack8 0xff b g r
-
-
--- | Convert a colour from a packed-word RGBA representation
---
-unpackRGB :: Exp Word32 -> Exp Colour
-unpackRGB w =
-  let (r,g,b::Exp Word8,_::Exp Word8) = unlift (unpack8 w)
-  in  rgb8 r g b
-
--- | Convert a colour from a packed-word ABGR representation
---
-unpackBGR :: Exp Word32 -> Exp Colour
-unpackBGR w =
-  let (_::Exp Word8,b::Exp Word8,g,r) = unlift (unpack8 w)
-  in  rgb8 r g b
-
-unpackRGB8 :: Exp Word32 -> Exp (RGB Word8)
-unpackRGB8 w =
-  let (r,g,b::Exp Word8,_::Exp Word8) = unlift (unpack8 w)
-  in  lift $ RGB r g b
-
-unpackBGR8 :: Exp Word32 -> Exp (RGB Word8)
-unpackBGR8 w =
-  let (_::Exp Word8,b::Exp Word8,g,r) = unlift (unpack8 w)
-  in  lift $ RGB r g b
-
-
--- | Pack the given four bytes into a single 4-byte word. The first argument
--- will be the highest byte in the word, and the last argument the lowest. (Thus
--- on a little-endian architecture, the first argument appears first in memory.)
---
-pack8 :: Exp Word8 -> Exp Word8 -> Exp Word8 -> Exp Word8 -> Exp Word32
-pack8 x y z w =
-      A.fromIntegral x `A.shiftL` 24
-  .|. A.fromIntegral y `A.shiftL` 16
-  .|. A.fromIntegral z `A.shiftL` 8
-  .|. A.fromIntegral w
-
--- | Inverse of 'pack'.
---
-unpack8 :: Exp Word32 -> Exp (Word8, Word8, Word8, Word8)
-unpack8 xyzw =
-  let x = A.fromIntegral (xyzw `A.shiftR` 24)
-      y = A.fromIntegral (xyzw `A.shiftR` 16)
-      z = A.fromIntegral (xyzw `A.shiftR` 8)
-      w = A.fromIntegral xyzw
-  in
-  lift (x,y,z,w)
-
-
-word8OfFloat :: Exp Float -> Exp Word8
-word8OfFloat x = A.truncate (x * 255)
 
 
 -- Named colours

@@ -6,8 +6,9 @@
 {-# LANGUAGE ScopedTypeVariables   #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE UndecidableInstances  #-}
+{-# LANGUAGE ViewPatterns          #-}
 -- |
--- Module      : Data.Array.Accelerate.Data.Colour.ARGB
+-- Module      : Data.Array.Accelerate.Data.Colour.RGBA
 -- Copyright   : [2016] Trevor L. McDonell
 -- License     : BSD3
 --
@@ -26,14 +27,18 @@ module Data.Array.Accelerate.Data.Colour.RGBA (
   rgba, rgba8,
   blend,
 
+  packRGBA,  packABGR,  unpackRGBA,  unpackABGR,
+  packRGBA8, packABGR8, unpackRGBA8, unpackABGR8,
+
 ) where
 
-import Data.Array.Accelerate                    as A
+import Data.Array.Accelerate                              as A
 import Data.Array.Accelerate.Smart
-import Data.Array.Accelerate.Product            ( TupleIdx(..), IsProduct(..) )
-import Data.Array.Accelerate.Array.Sugar        ( Elt(..), EltRepr, Tuple(..) )
+import Data.Array.Accelerate.Product                      ( TupleIdx(..), IsProduct(..) )
+import Data.Array.Accelerate.Array.Sugar                  ( Elt(..), EltRepr, Tuple(..) )
 
 import Data.Array.Accelerate.Data.Colour.Names
+import Data.Array.Accelerate.Data.Colour.Internal.Pack
 
 import Data.Typeable
 
@@ -43,8 +48,8 @@ import Data.Typeable
 type Colour = RGBA Float
 
 
--- | Construct an RGB colour from individual channel components. The components
--- will be clamped to the rang [0..1].
+-- | Construct an RGBA colour from individual channel components. The components
+-- will be clamped to the range [0..1].
 --
 rgba :: Exp Float     -- ^ red component
      -> Exp Float     -- ^ green component
@@ -109,6 +114,53 @@ blend m1 m2 c1 c2 =
        ((m1 * a1 + m2 * a2) / m12)
 
 
+-- Packed representation
+-- ---------------------
+
+-- | Convert a Colour into a packed-word RGBA representation
+--
+packRGBA :: Exp Colour -> Exp Word32
+packRGBA (unlift -> RGBA r g b a) =
+  pack8 (word8OfFloat r) (word8OfFloat g) (word8OfFloat b) (word8OfFloat a)
+
+-- | Convert a colour into a packed-word ABGR representation
+--
+packABGR :: Exp Colour -> Exp Word32
+packABGR (unlift -> RGBA r g b a) =
+  pack8 (word8OfFloat a) (word8OfFloat b) (word8OfFloat g) (word8OfFloat r)
+
+packRGBA8 :: Exp (RGBA Word8) -> Exp Word32
+packRGBA8 (unlift -> RGBA r g b a) = pack8 r g b a
+
+packABGR8 :: Exp (RGBA Word8) -> Exp Word32
+packABGR8 (unlift -> RGBA r g b a) = pack8 a b g r
+
+
+-- | Convert a colour from a packed-word RGBA representation
+--
+unpackRGBA :: Exp Word32 -> Exp Colour
+unpackRGBA w =
+  let (r,g,b,a::Exp Word8) = unlift (unpack8 w)
+  in  rgba8 r g b a
+
+-- | Convert a colour from a packed-word ABGR representation
+--
+unpackABGR :: Exp Word32 -> Exp Colour
+unpackABGR w =
+  let (a,b,g,r::Exp Word8) = unlift (unpack8 w)
+  in  rgba8 r g b a
+
+unpackRGBA8 :: Exp Word32 -> Exp (RGBA Word8)
+unpackRGBA8 w =
+  let (r,g,b,a::Exp Word8) = unlift (unpack8 w)
+  in  lift $ RGBA r g b a
+
+unpackABGR8 :: Exp Word32 -> Exp (RGBA Word8)
+unpackABGR8 w =
+  let (a,b,g,r::Exp Word8) = unlift (unpack8 w)
+  in  lift $ RGBA r g b a
+
+
 -- Accelerate bits
 -- ---------------
 
@@ -148,7 +200,6 @@ instance Elt a => Unlift Exp (RGBA (Exp a)) where
                       a = Exp $ ZeroTupIdx `Prj` c
                   in RGBA r g b a
 
-{--
 instance Num a => Num (RGBA a) where
   (+) (RGBA r1 g1 b1 _) (RGBA r2 g2 b2 _)
         = RGBA (r1 + r2) (g1 + g2) (b1 + b2) 1
@@ -178,7 +229,6 @@ instance (Elt a, IsNum a) => Num (Exp (RGBA a)) where
   fromInteger i = let f = constant (fromInteger i)
                       a = constant 1
                   in lift $ RGBA f f f a
---}
 
 
 -- Named colours
