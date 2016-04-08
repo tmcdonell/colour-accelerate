@@ -26,6 +26,7 @@ module Data.Array.Accelerate.Data.Colour.RGB (
 
   rgb, rgb8,
   blend,
+  luminance,
 
   packRGB,  packBGR,  unpackRGB,  unpackBGR,
   packRGB8, packBGR8, unpackRGB8, unpackBGR8,
@@ -106,6 +107,12 @@ blend m1 m2 c1 c2 =
   rgb (sqrt (m1' * r1s + m2' * r2s))
       (sqrt (m1' * g1s + m2' * g2s))
       (sqrt (m1' * b1s + m2' * b2s))
+
+
+-- | Luminance of an RGB colour (Y component of a YUV colour).
+--
+luminance :: Exp Colour -> Exp Float
+luminance (unlift -> RGB r g b) = 0.299*r + 0.587*g + 0.114*b
 
 
 -- Packed representation

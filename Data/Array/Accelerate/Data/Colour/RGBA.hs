@@ -26,7 +26,7 @@ module Data.Array.Accelerate.Data.Colour.RGBA (
 
   rgba, rgba8,
   blend,
-
+  luminance,
   opacity, opaque, transparent,
 
   packRGBA,  packABGR,  unpackRGBA,  unpackABGR,
@@ -114,6 +114,12 @@ blend m1 m2 c1 c2 =
        (sqrt (m1' * g1s + m2' * g2s))
        (sqrt (m1' * b1s + m2' * b2s))
        ((m1 * a1 + m2 * a2) / m12)
+
+
+-- | Luminance of an RGB colour (Y component of a YUV colour).
+--
+luminance :: Exp Colour -> Exp Float
+luminance (unlift -> RGBA r g b _) = 0.299*r + 0.587*g + 0.114*b
 
 
 -- | Set the opacity of the given colour. The opacity is clamped to the range
