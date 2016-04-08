@@ -105,8 +105,8 @@ fromRGB (unlift -> RGB r g b) = lift (HSV h s v)
     c  = mx - mn
     --
     v  = mx
-    s  = mx A.>*  0 ? ( c / mx , 0 )
-    h  = c  A./=* 0 ? ( h0 * 60, 0 )
+    s  = c A.==* 0 ? ( 0, c / mx  )
+    h  = c A.==* 0 ? ( 0, h0 * 60 )
     --
     h0 = mx ==* r ? ( ((g-b)/c) `fmod` 6
        , mx ==* g ? ( ((b-r)/c) + 2
