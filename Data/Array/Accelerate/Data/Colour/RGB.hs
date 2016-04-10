@@ -81,7 +81,14 @@ clamp = lift1 (fmap c :: RGB (Exp Float) -> RGB (Exp Float))
     c x = 0 `max` x `min` 1
 
 
--- | Blend two colours in the given proportions
+-- | Blend two colours in the given proportions.
+--
+-- Note that this uses an approximation of gamma=2 (i.e. sum-of-squares method).
+-- It is recommended to instead convert to the sRGB colour space if you want
+-- more accurate colour blending, or if you intend to use the gamma-corrected
+-- values more than once (e.g. in a stencil).
+--
+-- > blend c1 c2 ~= SRGB.toRGB ( (SRGB.fromRGB c1 + SRGB.fromRGB c2) / 2 )
 --
 blend :: Exp Float      -- ^ proportion of first colour
       -> Exp Float      -- ^ proportion of second colour
