@@ -56,5 +56,5 @@ picker = A.generate (constant (Z :. height :. width)) palette
 main :: IO ()
 main
   = writeImageToBMP "hot.bmp"
-  $ run $ A.map packBGR picker
+  $ run $ A.map packRGB picker
 

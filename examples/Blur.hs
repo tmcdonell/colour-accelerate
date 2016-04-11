@@ -82,12 +82,12 @@ main = do
 
   let name f    = "blur_" P.++ f <.> "bmp"
 
-      img       = A.map unpackBGR (use input)
+      img       = A.map unpackRGB (use input)
       blur      = gaussianY . gaussianX
 
       rgb_blur  = blur img
       srgb_blur = A.map toRGB . blur . A.map fromRGB $ img
 
-  writeImageToBMP (name "rgb")  $ run $ A.map packBGR rgb_blur
-  writeImageToBMP (name "srgb") $ run $ A.map packBGR srgb_blur
+  writeImageToBMP (name "rgb")  $ run $ A.map packRGB rgb_blur
+  writeImageToBMP (name "srgb") $ run $ A.map packRGB srgb_blur
 

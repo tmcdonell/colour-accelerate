@@ -26,7 +26,7 @@ import Data.Array.Accelerate.IO                           as A  -- package: acce
 import Data.Array.Accelerate.Interpreter                  as A
 
 import Data.Array.Accelerate.Data.Colour.HSV              as HSV
-import Data.Array.Accelerate.Data.Colour.RGB              ( packBGR )
+import Data.Array.Accelerate.Data.Colour.RGB              ( packRGB )
 
 import Prelude                                            as P
 
@@ -54,5 +54,5 @@ picker = A.generate (constant (Z :. height :. width)) palette
 main :: IO ()
 main
   = writeImageToBMP "hsv.bmp"
-  $ run $ A.map (packBGR . toRGB) picker
+  $ run $ A.map (packRGB . toRGB) picker
 
