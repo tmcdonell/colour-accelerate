@@ -2,6 +2,22 @@
 --
 -- Example for generating a HSV colour map
 --
+--            0                             hue                             360
+--           +----------------------------------------------------------------->
+--         0 |                             black                               |
+--           |                                                                 |
+--           |                                                                 |
+-- sat=1 val |                                                                 |
+--           |                                                                 |
+--           | red              green                  blue                red |
+--         1 v                                                                 |
+--         0 |         yellow              cyan                 magenta        |
+--           |                                                                 |
+--           |                                                                 |
+-- val=1 sat |                                                                 |
+--           |                                                                 |
+--           |                            white                                |
+--         1 v-----------------------------------------------------------------+
 
 module Main where
 

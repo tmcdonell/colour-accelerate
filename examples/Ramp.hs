@@ -2,6 +2,16 @@
 {-# LANGUAGE ViewPatterns        #-}
 --
 -- Example for generating a hot-to-cold colour ramp
+-- <http://paulbourke.net/texture_colour/colourspace/>
+--
+--
+--               (max+2*min)/4                         (3*max+min)/4
+-- min                              (max+min)/2                              max
+-- +------------------+------------------+------------------+------------------+
+-- |                                                                           |
+-- |                                                                           |
+-- +------------------+------------------+------------------+------------------+
+-- blue             cyan               green              yellow             red
 --
 
 module Main where
