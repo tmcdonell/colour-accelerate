@@ -96,6 +96,9 @@ clamp = lift1 (fmap c :: RGBA (Exp Float) -> RGBA (Exp Float))
 --
 -- > blend c1 c2 ~= SRGB.toRGB ( (SRGB.fromRGB c1 + SRGB.fromRGB c2) / 2 )
 --
+-- See the Blur program in the examples for a comparison of mixing colours in
+-- the RGB and sRGB colour spaces.
+--
 blend :: Exp Float      -- ^ Proportion of first colour
       -> Exp Float      -- ^ Proportion of second colour
       -> Exp Colour     -- ^ First colour
