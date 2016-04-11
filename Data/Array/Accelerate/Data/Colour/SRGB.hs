@@ -66,20 +66,21 @@ clamp = lift1 (fmap c :: SRGB (Exp Float) -> SRGB (Exp Float))
     c x = 0 `max` x `min` 1
 
 
--- | Convert a colour in the sRGB colour space into the linear RGB colour space.
+-- | Convert a colour in the non-linear RGB colour space into the linear sRGB
+-- colour space.
 --
-toRGB :: Exp (SRGB Float) -> Exp (RGB Float)
-toRGB (unlift -> RGB r g b)
+fromRGB :: Exp (RGB Float) -> Exp (SRGB Float)
+fromRGB (unlift -> RGB r g b)
   = lift
   $ RGB (invTransferFunction r)
         (invTransferFunction g)
         (invTransferFunction b)
 
--- | Convert a colour in the linear RGB colour space into the non-linear SRGB
+-- | Convert a colour in the linear sRGB colour space into the non-linear RGB
 -- colour space.
 --
-fromRGB :: Exp (RGB Float) -> Exp (SRGB Float)
-fromRGB (unlift -> RGB r g b)
+toRGB :: Exp (SRGB Float) -> Exp (RGB Float)
+toRGB (unlift -> RGB r g b)
   = lift
   $ RGB (transferFunction r)
         (transferFunction g)
