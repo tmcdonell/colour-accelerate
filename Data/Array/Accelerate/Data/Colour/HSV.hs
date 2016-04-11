@@ -183,8 +183,19 @@ instance Num a => Num (HSV a) where
         = let f = fromInteger i
           in  HSV f f f
 
+instance (Num a, Fractional a) => Fractional (HSV a) where
+  (/) (HSV h1 s1 v1) (HSV h2 s2 v2)
+        = HSV (h1/h2) (s1/s2) (v1/v2)
 
-instance (Elt a, IsNum a) => Num (Exp (HSV a)) where
+  recip (HSV h1 s1 v1)
+        = HSV (recip h1) (recip s1) (recip v1)
+
+  fromRational r
+        = let f = fromRational r
+          in  HSV f f f
+
+
+instance {-# OVERLAPS #-} (Elt a, IsNum a) => Num (Exp (HSV a)) where
   (+)           = lift2 ((+) :: HSV (Exp a) -> HSV (Exp a) -> HSV (Exp a))
   (-)           = lift2 ((-) :: HSV (Exp a) -> HSV (Exp a) -> HSV (Exp a))
   (*)           = lift2 ((*) :: HSV (Exp a) -> HSV (Exp a) -> HSV (Exp a))
@@ -192,6 +203,12 @@ instance (Elt a, IsNum a) => Num (Exp (HSV a)) where
   signum        = lift1 (signum :: HSV (Exp a) -> HSV (Exp a))
   fromInteger i = let f = constant (fromInteger i)
                   in lift $ HSV f f f
+
+instance {-# OVERLAPS #-} (Elt a, IsFloating a) => Fractional (Exp (HSV a)) where
+  (/)            = lift2 ((/) :: HSV (Exp a) -> HSV (Exp a) -> HSV (Exp a))
+  recip          = lift1 (recip :: HSV (Exp a) -> HSV (Exp a))
+  fromRational r = let f = constant (fromRational r)
+                   in lift $ HSV f f f
 
 
 -- Named colours

@@ -220,8 +220,19 @@ instance Num a => Num (RGB a) where
         = let f = fromInteger i
           in  RGB f f f
 
+instance (Num a, Fractional a) => Fractional (RGB a) where
+  (/) (RGB r1 g1 b1) (RGB r2 g2 b2)
+        = RGB (r1/r2) (g1/g2) (b1/b2)
 
-instance (Elt a, IsNum a) => Num (Exp (RGB a)) where
+  recip (RGB r1 g1 b1)
+        = RGB (recip r1) (recip g1) (recip b1)
+
+  fromRational r
+        = let f = fromRational r
+          in  RGB f f f
+
+
+instance {-# OVERLAPS #-} (Elt a, IsNum a) => Num (Exp (RGB a)) where
   (+)           = lift2 ((+) :: RGB (Exp a) -> RGB (Exp a) -> RGB (Exp a))
   (-)           = lift2 ((-) :: RGB (Exp a) -> RGB (Exp a) -> RGB (Exp a))
   (*)           = lift2 ((*) :: RGB (Exp a) -> RGB (Exp a) -> RGB (Exp a))
@@ -229,6 +240,12 @@ instance (Elt a, IsNum a) => Num (Exp (RGB a)) where
   signum        = lift1 (signum :: RGB (Exp a) -> RGB (Exp a))
   fromInteger i = let f = constant (fromInteger i)
                   in lift $ RGB f f f
+
+instance {-# OVERLAPS #-} (Elt a, IsFloating a) => Fractional (Exp (RGB a)) where
+  (/)            = lift2 ((/) :: RGB (Exp a) -> RGB (Exp a) -> RGB (Exp a))
+  recip          = lift1 (recip :: RGB (Exp a) -> RGB (Exp a))
+  fromRational r = let f = constant (fromRational r)
+                   in lift $ RGB f f f
 
 
 -- Named colours

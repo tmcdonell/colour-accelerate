@@ -87,7 +87,14 @@ clamp = lift1 (fmap c :: RGBA (Exp Float) -> RGBA (Exp Float))
     c x = 0 `max` x `min` 1
 
 
--- | Blend two colours in the given proportions
+-- | Blend two colours in the given proportions.
+--
+-- Note that this uses an approximation of gamma=2 (i.e. sum-of-squares method).
+-- It is recommended to instead convert to the sRGB colour space if you want
+-- more accurate colour blending, or if you intend to use the gamma-corrected
+-- values more than once (e.g. in a stencil).
+--
+-- > blend c1 c2 ~= SRGB.toRGB ( (SRGB.fromRGB c1 + SRGB.fromRGB c2) / 2 )
 --
 blend :: Exp Float      -- ^ Proportion of first colour
       -> Exp Float      -- ^ Proportion of second colour
@@ -245,7 +252,18 @@ instance Num a => Num (RGBA a) where
         = let f = fromInteger i
           in  RGBA f f f 1
 
-instance (Elt a, IsNum a) => Num (Exp (RGBA a)) where
+instance (Num a, Fractional a) => Fractional (RGBA a) where
+  (/) (RGBA r1 g1 b1 _) (RGBA r2 g2 b2 _)
+        = RGBA (r1/r2) (g1/g2) (b1/b2) 1
+
+  recip (RGBA r1 g1 b1 _)
+        = RGBA (recip r1) (recip g1) (recip b1) 1
+
+  fromRational r
+        = let f = fromRational r
+          in  RGBA f f f 1
+
+instance {-# OVERLAPS #-} (Elt a, IsNum a) => Num (Exp (RGBA a)) where
   (+)           = lift2 ((+) :: RGBA (Exp a) -> RGBA (Exp a) -> RGBA (Exp a))
   (-)           = lift2 ((-) :: RGBA (Exp a) -> RGBA (Exp a) -> RGBA (Exp a))
   (*)           = lift2 ((*) :: RGBA (Exp a) -> RGBA (Exp a) -> RGBA (Exp a))
@@ -254,6 +272,12 @@ instance (Elt a, IsNum a) => Num (Exp (RGBA a)) where
   fromInteger i = let f = constant (fromInteger i)
                       a = constant 1
                   in lift $ RGBA f f f a
+
+instance {-# OVERLAPS #-} (Elt a, IsFloating a) => Fractional (Exp (RGBA a)) where
+  (/)            = lift2 ((/) :: RGBA (Exp a) -> RGBA (Exp a) -> RGBA (Exp a))
+  recip          = lift1 (recip :: RGBA (Exp a) -> RGBA (Exp a))
+  fromRational r = let f = constant (fromRational r)
+                   in lift $ RGBA f f f 1
 
 
 -- Named colours
