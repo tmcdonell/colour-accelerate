@@ -11,9 +11,9 @@ repository](https://github.com/AccelerateHS/accelerate).
 Example: Blur
 -------------
 
-![Test image](https://github.com/tmcdonell/colour-accelerate/tree/master/samples/blocks.bmp)
-![sRGB linear](https://github.com/tmcdonell/colour-accelerate/tree/master/samples/blur_srgb.bmp)
-![RGB non-linear](https://github.com/tmcdonell/colour-accelerate/tree/master/samples/blur_rgb.bmp)
+![Test image](https://github.com/tmcdonell/colour-accelerate/raw/master/samples/blocks.bmp)
+![sRGB linear](https://github.com/tmcdonell/colour-accelerate/raw/master/samples/blur_srgb.bmp)
+![RGB non-linear](https://github.com/tmcdonell/colour-accelerate/raw/master/samples/blur_rgb.bmp)
 
 The test image on the right is composed of blocks and bars of the primary and
 secondary colours, arranged so that each colour is juxtaposed next to all
