@@ -34,10 +34,13 @@ import System.Environment
 import Prelude                                            as P
 
 
-type Image a            = Array DIM2 a
+type Image a      = Array DIM2 a
 
-type Stencil5x1 a       = (Stencil3 a, Stencil5 a, Stencil3 a)
-type Stencil1x5 a       = (Stencil3 a, Stencil3 a, Stencil3 a, Stencil3 a, Stencil3 a)
+type Stencil5x1 a = (Stencil3 a, Stencil5 a, Stencil3 a)
+type Stencil1x5 a = (Stencil3 a, Stencil3 a, Stencil3 a, Stencil3 a, Stencil3 a)
+
+type Stencil9x1 a = (Stencil3 a, Stencil9 a, Stencil3 a)
+type Stencil1x9 a = (Stencil3 a, Stencil3 a, Stencil3 a, Stencil3 a, Stencil3 a, Stencil3 a, Stencil3 a, Stencil3 a, Stencil3 a)
 
 
 convolve5x1 :: (Elt a, Num (Exp a)) => [Exp a] -> Stencil5x1 a -> Exp a
@@ -48,18 +51,28 @@ convolve1x5 :: (Elt a, Num (Exp a)) => [Exp a] -> Stencil1x5 a -> Exp a
 convolve1x5 kernel ((_,a,_), (_,b,_), (_,c,_), (_,d,_), (_,e,_))
   = P.sum $ P.zipWith (*) kernel [a,b,c,d,e]
 
+convolve9x1 :: (Elt a, Num (Exp a)) => [Exp a] -> Stencil9x1 a -> Exp a
+convolve9x1 kernel (_, (a,b,c,d,e,f,g,h,i), _)
+  = P.sum $ P.zipWith (*) kernel [a,b,c,d,e,f,g,h,i]
 
--- Separable 5x5 Gaussian blur in the x- and y-directions
+convolve1x9 :: (Elt a, Num (Exp a)) => [Exp a] -> Stencil1x9 a -> Exp a
+convolve1x9 kernel ((_,a,_), (_,b,_), (_,c,_), (_,d,_), (_,e,_), (_,f,_), (_,g,_), (_,h,_), (_,i,_))
+  = P.sum $ P.zipWith (*) kernel [a,b,c,d,e,f,g,h,i]
+
+
+-- Separable Gaussian blur in the x- and y-directions
 --
 gaussianX :: Acc (Image (RGB Float)) -> Acc (Image (RGB Float))
-gaussianX = stencil (convolve5x1 gaussian) Clamp
-  where
-    gaussian = P.map (/16) [ 1, 4, 6, 4, 1 ]
+gaussianX = stencil (convolve9x1 gaussian9) Clamp
 
 gaussianY :: Acc (Image (RGB Float)) -> Acc (Image (RGB Float))
-gaussianY = stencil (convolve1x5 gaussian) Clamp
-  where
-    gaussian = P.map (/16) [ 1, 4, 6, 4, 1 ]
+gaussianY = stencil (convolve1x9 gaussian9) Clamp
+
+-- <http://dev.theomader.com/gaussian-kernel-calculator/>
+--
+gaussian5, gaussian9 :: [Exp (RGB Float)]
+gaussian5 = [0.06136,0.24477,0.38774,0.24477,0.06136]
+gaussian9 = [0.028532,0.067234,0.124009,0.179044,0.20236,0.179044,0.124009,0.067234,0.028532]
 
 
 
