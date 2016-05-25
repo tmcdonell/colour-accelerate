@@ -11,11 +11,11 @@ repository](https://github.com/AccelerateHS/accelerate).
 Example: Blur
 -------------
 
-![Test image](https://github.com/tmcdonell/colour-accelerate/raw/master/samples/blocks.bmp)
-![sRGB linear](https://github.com/tmcdonell/colour-accelerate/raw/master/samples/blur_srgb.bmp)
-![RGB non-linear](https://github.com/tmcdonell/colour-accelerate/raw/master/samples/blur_rgb.bmp)
+| Test image | sRGB | RGB |
+|:----------:|:----:|:---:|
+| ![Test image][blocks] | ![sRGB linear][blur_srgb] | ![RGB non-linear][blur_rgb] |
 
-The test image on the right is composed of blocks and bars of the primary and
+The test image on the left is composed of blocks and bars of the primary and
 secondary colours, arranged so that each colour is juxtaposed next to all
 others, plus black and white.
 
@@ -31,3 +31,7 @@ artefacts produced by mixing colours in the RGB colour space.
 The files to generate the test image and run the demonstration are in the
 examples directory.
 
+
+[blocks]:     https://github.com/tmcdonell/colour-accelerate/raw/master/samples/blocks.bmp
+[blur_srgb]:  https://github.com/tmcdonell/colour-accelerate/raw/master/samples/blur_srgb.bmp
+[blur_rgb]:   https://github.com/tmcdonell/colour-accelerate/raw/master/samples/blur_rgb.bmp
