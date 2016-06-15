@@ -43,19 +43,19 @@ type Stencil9x1 a = (Stencil3 a, Stencil9 a, Stencil3 a)
 type Stencil1x9 a = (Stencil3 a, Stencil3 a, Stencil3 a, Stencil3 a, Stencil3 a, Stencil3 a, Stencil3 a, Stencil3 a, Stencil3 a)
 
 
-convolve5x1 :: (Elt a, Num (Exp a)) => [Exp a] -> Stencil5x1 a -> Exp a
+convolve5x1 :: A.Num a => [Exp a] -> Stencil5x1 a -> Exp a
 convolve5x1 kernel (_, (a,b,c,d,e), _)
   = P.sum $ P.zipWith (*) kernel [a,b,c,d,e]
 
-convolve1x5 :: (Elt a, Num (Exp a)) => [Exp a] -> Stencil1x5 a -> Exp a
+convolve1x5 :: A.Num a => [Exp a] -> Stencil1x5 a -> Exp a
 convolve1x5 kernel ((_,a,_), (_,b,_), (_,c,_), (_,d,_), (_,e,_))
   = P.sum $ P.zipWith (*) kernel [a,b,c,d,e]
 
-convolve9x1 :: (Elt a, Num (Exp a)) => [Exp a] -> Stencil9x1 a -> Exp a
+convolve9x1 :: A.Num a => [Exp a] -> Stencil9x1 a -> Exp a
 convolve9x1 kernel (_, (a,b,c,d,e,f,g,h,i), _)
   = P.sum $ P.zipWith (*) kernel [a,b,c,d,e,f,g,h,i]
 
-convolve1x9 :: (Elt a, Num (Exp a)) => [Exp a] -> Stencil1x9 a -> Exp a
+convolve1x9 :: A.Num a => [Exp a] -> Stencil1x9 a -> Exp a
 convolve1x9 kernel ((_,a,_), (_,b,_), (_,c,_), (_,d,_), (_,e,_), (_,f,_), (_,g,_), (_,h,_), (_,i,_))
   = P.sum $ P.zipWith (*) kernel [a,b,c,d,e,f,g,h,i]
 

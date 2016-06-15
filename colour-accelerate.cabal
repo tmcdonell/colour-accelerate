@@ -46,3 +46,5 @@ source-repository head
   type:               git
   location:           https://github.com/tmcdonell/colour-accelerate
 
+-- vim: nospell
+

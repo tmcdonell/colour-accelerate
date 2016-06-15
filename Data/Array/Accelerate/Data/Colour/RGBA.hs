@@ -48,6 +48,7 @@ import Data.Array.Accelerate.Data.Colour.Names
 import Data.Array.Accelerate.Data.Colour.Internal.Pack
 
 import Data.Typeable
+import Prelude                                            as P
 
 
 -- | An RGBA colour value.
@@ -89,7 +90,7 @@ rgba8 r g b a
 clamp :: Exp Colour -> Exp Colour
 clamp = lift1 (fmap c :: RGBA (Exp Float) -> RGBA (Exp Float))
   where
-    c x = 0 `max` x `min` 1
+    c x = 0 `A.max` x `A.min` 1
 
 
 -- | Blend two colours in the given proportions.
@@ -141,7 +142,7 @@ luminance (unlift -> RGBA r g b _) = 0.299*r + 0.587*g + 0.114*b
 -- [0..1].
 --
 opacity :: Exp Float -> Exp Colour -> Exp Colour
-opacity a (unlift -> RGBA r g b _) = lift $ RGBA r g b (0 `max` a `min` 1)
+opacity a (unlift -> RGBA r g b _) = lift $ RGBA r g b (0 `A.max` a `A.min` 1)
 
 -- | Make colour transparent
 --
@@ -211,7 +212,7 @@ unpackABGR8 w =
 -- RGBA (Exp a).
 --
 data RGBA a = RGBA a a a a
-  deriving (Show, Eq, Functor, Typeable)
+  deriving (Show, P.Eq, Functor, Typeable)
 
 -- Represent colours in Accelerate as a 4-tuple
 --
@@ -240,7 +241,7 @@ instance Elt a => Unlift Exp (RGBA (Exp a)) where
                       a = Exp $ ZeroTupIdx `Prj` c
                   in RGBA r g b a
 
-instance Num a => Num (RGBA a) where
+instance P.Num a => P.Num (RGBA a) where
   (+) (RGBA r1 g1 b1 _) (RGBA r2 g2 b2 _)
         = RGBA (r1 + r2) (g1 + g2) (b1 + b2) 1
 
@@ -260,7 +261,7 @@ instance Num a => Num (RGBA a) where
         = let f = fromInteger i
           in  RGBA f f f 1
 
-instance (Num a, Fractional a) => Fractional (RGBA a) where
+instance (P.Num a, P.Fractional a) => P.Fractional (RGBA a) where
   (/) (RGBA r1 g1 b1 _) (RGBA r2 g2 b2 _)
         = RGBA (r1/r2) (g1/g2) (b1/b2) 1
 
@@ -271,21 +272,22 @@ instance (Num a, Fractional a) => Fractional (RGBA a) where
         = let f = fromRational r
           in  RGBA f f f 1
 
-instance {-# OVERLAPS #-} (Elt a, IsNum a) => Num (Exp (RGBA a)) where
+instance {-# OVERLAPS #-} A.Num a => P.Num (Exp (RGBA a)) where
   (+)           = lift2 ((+) :: RGBA (Exp a) -> RGBA (Exp a) -> RGBA (Exp a))
   (-)           = lift2 ((-) :: RGBA (Exp a) -> RGBA (Exp a) -> RGBA (Exp a))
   (*)           = lift2 ((*) :: RGBA (Exp a) -> RGBA (Exp a) -> RGBA (Exp a))
   abs           = lift1 (abs :: RGBA (Exp a) -> RGBA (Exp a))
   signum        = lift1 (signum :: RGBA (Exp a) -> RGBA (Exp a))
-  fromInteger i = let f = constant (fromInteger i)
-                      a = constant 1
+  fromInteger i = let f = fromInteger i
+                      a = fromInteger 1 :: Exp a
                   in lift $ RGBA f f f a
 
-instance {-# OVERLAPS #-} (Elt a, IsFloating a) => Fractional (Exp (RGBA a)) where
+instance {-# OVERLAPS #-} A.Fractional a => P.Fractional (Exp (RGBA a)) where
   (/)            = lift2 ((/) :: RGBA (Exp a) -> RGBA (Exp a) -> RGBA (Exp a))
   recip          = lift1 (recip :: RGBA (Exp a) -> RGBA (Exp a))
-  fromRational r = let f = constant (fromRational r)
-                   in lift $ RGBA f f f 1
+  fromRational r = let f = fromRational r
+                       a = fromRational 1 :: Exp a
+                   in lift $ RGBA f f f a
 
 
 -- Named colours

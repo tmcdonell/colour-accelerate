@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts    #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ViewPatterns        #-}
 -- |
@@ -63,7 +64,7 @@ srgb8 r g b
 clamp :: Exp Colour -> Exp Colour
 clamp = lift1 (fmap c :: SRGB (Exp Float) -> SRGB (Exp Float))
   where
-    c x = 0 `max` x `min` 1
+    c x = 0 `A.max` x `A.min` 1
 
 
 -- | Convert a colour in the non-linear RGB colour space into the linear sRGB

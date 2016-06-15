@@ -72,7 +72,7 @@ clamp (unlift -> HSV h s v)
   = lift
   $ HSV (fmod h 360) (c s) (c v)
   where
-    c x = 0 `max` x `min` 1
+    c x = 0 `A.max` x `A.min` 1
 
 fmod :: Exp Float -> Exp Float -> Exp Float
 fmod n d = n - f * d
@@ -141,7 +141,7 @@ value (unlift . fromRGB -> HSV _ _ v) = v
 -- HSV colour space
 --
 data HSV a = HSV a a a
-  deriving (Show, Eq, Functor, Typeable)
+  deriving (Show, P.Eq, Functor, Typeable)
 
 -- Represent colours in Accelerate as a 3-tuple
 --
@@ -168,7 +168,7 @@ instance Elt a => Unlift Exp (HSV (Exp a)) where
                       v = Exp $ ZeroTupIdx `Prj` c
                   in HSV h s v
 
-instance Num a => Num (HSV a) where
+instance P.Num a => P.Num (HSV a) where
   (+) (HSV h1 s1 v1 ) (HSV h2 s2 v2)
         = HSV (h1 + h2) (s1 + s2) (v1 + v2)
 
@@ -188,7 +188,7 @@ instance Num a => Num (HSV a) where
         = let f = fromInteger i
           in  HSV f f f
 
-instance (Num a, Fractional a) => Fractional (HSV a) where
+instance (P.Num a, P.Fractional a) => P.Fractional (HSV a) where
   (/) (HSV h1 s1 v1) (HSV h2 s2 v2)
         = HSV (h1/h2) (s1/s2) (v1/v2)
 
@@ -200,19 +200,19 @@ instance (Num a, Fractional a) => Fractional (HSV a) where
           in  HSV f f f
 
 
-instance {-# OVERLAPS #-} (Elt a, IsNum a) => Num (Exp (HSV a)) where
+instance {-# OVERLAPS #-} A.Num a => P.Num (Exp (HSV a)) where
   (+)           = lift2 ((+) :: HSV (Exp a) -> HSV (Exp a) -> HSV (Exp a))
   (-)           = lift2 ((-) :: HSV (Exp a) -> HSV (Exp a) -> HSV (Exp a))
   (*)           = lift2 ((*) :: HSV (Exp a) -> HSV (Exp a) -> HSV (Exp a))
   abs           = lift1 (abs :: HSV (Exp a) -> HSV (Exp a))
   signum        = lift1 (signum :: HSV (Exp a) -> HSV (Exp a))
-  fromInteger i = let f = constant (fromInteger i)
+  fromInteger i = let f = fromInteger i :: Exp a
                   in lift $ HSV f f f
 
-instance {-# OVERLAPS #-} (Elt a, IsFloating a) => Fractional (Exp (HSV a)) where
+instance {-# OVERLAPS #-} A.Fractional a => P.Fractional (Exp (HSV a)) where
   (/)            = lift2 ((/) :: HSV (Exp a) -> HSV (Exp a) -> HSV (Exp a))
   recip          = lift1 (recip :: HSV (Exp a) -> HSV (Exp a))
-  fromRational r = let f = constant (fromRational r)
+  fromRational r = let f = fromRational r :: Exp a
                    in lift $ HSV f f f
 
 

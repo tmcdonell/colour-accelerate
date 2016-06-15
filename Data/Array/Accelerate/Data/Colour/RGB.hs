@@ -47,6 +47,7 @@ import Data.Array.Accelerate.Data.Colour.Names
 import Data.Array.Accelerate.Data.Colour.Internal.Pack
 
 import Data.Typeable
+import Prelude                                            as P
 
 
 -- | An RGB colour value
@@ -83,7 +84,7 @@ rgb8 r g b
 clamp :: Exp Colour -> Exp Colour
 clamp = lift1 (fmap c :: RGB (Exp Float) -> RGB (Exp Float))
   where
-    c x = 0 `max` x `min` 1
+    c x = 0 `A.max` x `A.min` 1
 
 
 -- | Blend two colours in the given proportions.
@@ -181,7 +182,7 @@ unpackBGR8 w =
 -- RGB colour space
 --
 data RGB a = RGB a a a
-  deriving (Show, Eq, Functor, Typeable)
+  deriving (Show, P.Eq, Functor, Typeable)
 
 -- Represent colours in Accelerate as a 3-tuple
 --
@@ -208,7 +209,7 @@ instance Elt a => Unlift Exp (RGB (Exp a)) where
                       b = Exp $ ZeroTupIdx `Prj` c
                   in RGB r g b
 
-instance Num a => Num (RGB a) where
+instance P.Num a => P.Num (RGB a) where
   (+) (RGB r1 g1 b1 ) (RGB r2 g2 b2)
         = RGB (r1 + r2) (g1 + g2) (b1 + b2)
 
@@ -228,7 +229,7 @@ instance Num a => Num (RGB a) where
         = let f = fromInteger i
           in  RGB f f f
 
-instance (Num a, Fractional a) => Fractional (RGB a) where
+instance (P.Num a, P.Fractional a) => P.Fractional (RGB a) where
   (/) (RGB r1 g1 b1) (RGB r2 g2 b2)
         = RGB (r1/r2) (g1/g2) (b1/b2)
 
@@ -240,19 +241,19 @@ instance (Num a, Fractional a) => Fractional (RGB a) where
           in  RGB f f f
 
 
-instance {-# OVERLAPS #-} (Elt a, IsNum a) => Num (Exp (RGB a)) where
+instance {-# OVERLAPS #-} A.Num a => P.Num (Exp (RGB a)) where
   (+)           = lift2 ((+) :: RGB (Exp a) -> RGB (Exp a) -> RGB (Exp a))
   (-)           = lift2 ((-) :: RGB (Exp a) -> RGB (Exp a) -> RGB (Exp a))
   (*)           = lift2 ((*) :: RGB (Exp a) -> RGB (Exp a) -> RGB (Exp a))
   abs           = lift1 (abs :: RGB (Exp a) -> RGB (Exp a))
   signum        = lift1 (signum :: RGB (Exp a) -> RGB (Exp a))
-  fromInteger i = let f = constant (fromInteger i)
-                  in lift $ RGB f f f
+  fromInteger i = let f = fromInteger i :: Exp a
+                  in  lift $ RGB f f f
 
-instance {-# OVERLAPS #-} (Elt a, IsFloating a) => Fractional (Exp (RGB a)) where
+instance {-# OVERLAPS #-} A.Fractional a => P.Fractional (Exp (RGB a)) where
   (/)            = lift2 ((/) :: RGB (Exp a) -> RGB (Exp a) -> RGB (Exp a))
   recip          = lift1 (recip :: RGB (Exp a) -> RGB (Exp a))
-  fromRational r = let f = constant (fromRational r)
+  fromRational r = let f = fromRational r :: Exp a
                    in lift $ RGB f f f
 
 

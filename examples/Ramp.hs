@@ -38,7 +38,7 @@ ramp :: Exp Float     -- minimum value
      -> Exp Float     -- maximum value
      -> Exp Float     -- point in the range
      -> Exp Colour
-ramp vmin vmax (min vmax . max vmin -> v)
+ramp vmin vmax (A.min vmax . A.max vmin -> v)
   = v A.<* vmin + 0.25 * dv ? ( lift (RGB 0 (4 * (v - vmin) / dv) 1)
   , v A.<* vmin + 0.50 * dv ? ( lift (RGB 0 1 (1 + 4 * (vmin + 0.25 * dv - v) / dv ))
   , v A.<* vmin + 0.75 * dv ? ( lift (RGB (4 * (v - vmin - 0.5 * dv) / dv) 1 0)

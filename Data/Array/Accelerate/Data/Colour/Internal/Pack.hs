@@ -12,7 +12,7 @@ module Data.Array.Accelerate.Data.Colour.Internal.Pack
   where
 
 import Data.Array.Accelerate                    as A
-import Data.Bits
+import Data.Array.Accelerate.Data.Bits          as A
 
 
 -- | Pack the given four bytes into a single 4-byte word. The first argument
