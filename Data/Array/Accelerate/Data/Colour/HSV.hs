@@ -32,6 +32,7 @@ module Data.Array.Accelerate.Data.Colour.HSV (
   HSV(..),
 
   hsv,
+  clamp,
   toRGB, fromRGB,
   hue,
   saturation,

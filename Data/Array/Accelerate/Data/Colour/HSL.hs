@@ -32,6 +32,7 @@ module Data.Array.Accelerate.Data.Colour.HSL (
   HSL(..),
 
   hsl,
+  clamp,
   toRGB, fromRGB,
   hue,
   saturation,

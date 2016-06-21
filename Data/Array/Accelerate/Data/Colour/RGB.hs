@@ -31,6 +31,7 @@ module Data.Array.Accelerate.Data.Colour.RGB (
   RGB(..),
 
   rgb, rgb8,
+  clamp,
   blend,
   luminance,
 

@@ -31,6 +31,7 @@ module Data.Array.Accelerate.Data.Colour.RGBA (
   RGBA(..),
 
   rgba, rgba8,
+  clamp,
   blend,
   luminance,
   opacity, opaque, transparent,
