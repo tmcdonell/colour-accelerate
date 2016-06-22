@@ -16,7 +16,20 @@ import Data.Array.Accelerate.Data.Bits          as A
 
 
 -- | Pack the given four bytes into a single 4-byte word. The first argument
--- will appear in-memory as the first byte on a little-endian architecture.
+-- will appear at the lowest address on a little-endian architecture with
+-- one-byte addressing:
+--
+-- >>> pack8 0x0d 0x0c 0x0b 0x0a = 0x0a0b0c0d
+--
+-- This function is equivalent to:
+--
+-- >>> alloca $ \(p :: Ptr Word32) ->
+-- >>>   pokeByteOff p 0 (0x0d :: Word8)
+-- >>>   pokeByteOff p 1 (0x0c :: Word8)
+-- >>>   pokeByteOff p 2 (0x0b :: Word8)
+-- >>>   pokeByteOff p 3 (0x0a :: Word8)
+--
+-- Where 'p' would then point to the value '0x0a0b0c0d'
 --
 pack8 :: Exp Word8 -> Exp Word8 -> Exp Word8 -> Exp Word8 -> Exp Word32
 pack8 x y z w =
@@ -25,7 +38,9 @@ pack8 x y z w =
   .|. A.fromIntegral y `A.shiftL` 8
   .|. A.fromIntegral x
 
--- | Inverse of 'pack'.
+-- | Inverse of 'pack'. On a little-endian architecture:
+--
+-- >>> unpack8 0x0a0b0c0d = (0x0d, 0x0c, 0x0b, 0x0a)
 --
 unpack8 :: Exp Word32 -> Exp (Word8, Word8, Word8, Word8)
 unpack8 xyzw =
