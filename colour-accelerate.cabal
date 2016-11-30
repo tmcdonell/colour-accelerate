@@ -20,7 +20,7 @@ bug-reports:          https://github.com/tmcdonell/colour-accelerate/issues
 
 extra-source-files:
   README.md
-  examples/*
+  examples/*.hs
 
 library
   default-language:   Haskell2010
