@@ -50,6 +50,7 @@ import Data.Array.Accelerate.Data.Colour.Names  as C
 
 import Data.Functor
 import Data.Typeable
+import Prelude                                  ( fromInteger )   -- ghc < 8 bug
 import qualified Prelude                        as P
 
 
