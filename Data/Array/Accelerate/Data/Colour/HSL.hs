@@ -48,8 +48,9 @@ import Data.Array.Accelerate.Array.Sugar        ( Elt(..), EltRepr, Tuple(..) )
 import Data.Array.Accelerate.Data.Colour.RGB    ( RGB(..) )
 import Data.Array.Accelerate.Data.Colour.Names  as C
 
+import Data.Functor
 import Data.Typeable
-import Prelude                                  as P
+import qualified Prelude                        as P
 
 
 -- | A HSL colour value
@@ -74,12 +75,12 @@ clamp (unlift -> HSL h s l)
   = lift
   $ HSL (fmod h 360) (c s) (c l)
   where
-    c x = 0 `A.max` x `A.min` 1
+    c x = 0 `max` x `min` 1
 
 fmod :: Exp Float -> Exp Float -> Exp Float
 fmod n d = n - f * d
   where
-    f = A.fromIntegral (A.floor (n / d) :: Exp Int)
+    f = fromIntegral (floor (n / d) :: Exp Int)
 
 -- | Convert a HSL colour to an RGB colour-space value
 --
@@ -94,12 +95,12 @@ toRGB (unlift -> HSL h s l) = rgb
     c'  = c + m
     x'  = x + m
     --
-    rgb = h' A.<* 1 ? ( lift (RGB c' x' m)
-        , h' A.<* 2 ? ( lift (RGB x' c' m)
-        , h' A.<* 3 ? ( lift (RGB m  c' x')
-        , h' A.<* 4 ? ( lift (RGB m  x' c')
-        , h' A.<* 5 ? ( lift (RGB x' m  c')
-        ,             ( lift (RGB c' m  x') ))))))
+    rgb = h' < 1 ? ( lift (RGB c' x' m)
+        , h' < 2 ? ( lift (RGB x' c' m)
+        , h' < 3 ? ( lift (RGB m  c' x')
+        , h' < 4 ? ( lift (RGB m  x' c')
+        , h' < 5 ? ( lift (RGB x' m  c')
+        ,          ( lift (RGB c' m  x') ))))))
 
 
 -- | Convert a point in the RGB colour-space to a point in the HSL colour-space.
@@ -112,12 +113,12 @@ fromRGB (unlift -> RGB r g b) = lift (HSL h s l)
     c  = mx - mn
     --
     l  = 0.5 * (mx + mn)
-    s  = c A.==* 0 ? ( 0, c / (1 - abs (2*l-1)) )
-    h  = c A.==* 0 ? ( 0, h0 * 60 )
+    s  = c == 0 ? ( 0, c / (1 - abs (2*l-1)) )
+    h  = c == 0 ? ( 0, h0 * 60 )
     --
-    h0 = mx ==* r ? ( ((g-b)/c) `fmod` 6
-       , mx ==* g ? ( ((b-r)/c) + 2
-       , mx ==* b ? ( ((r-g)/c) + 4
+    h0 = mx == r ? ( ((g-b)/c) `fmod` 6
+       , mx == g ? ( ((b-r)/c) + 2
+       , mx == b ? ( ((r-g)/c) + 4
        , {- otherwise -} 0 )))
 
 
@@ -143,7 +144,7 @@ lightness (unlift . fromRGB -> HSL _ _ l) = l
 -- HSL colour space
 --
 data HSL a = HSL a a a
-  deriving (Show, P.Eq, Functor, Typeable)
+  deriving (P.Show, P.Eq, Functor, Typeable)
 
 -- Represent colours in Accelerate as a 3-tuple
 --

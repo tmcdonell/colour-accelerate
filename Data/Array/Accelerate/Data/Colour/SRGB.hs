@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleContexts    #-}
+{-# LANGUAGE NoImplicitPrelude   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ViewPatterns        #-}
 -- |
@@ -24,6 +25,8 @@ module Data.Array.Accelerate.Data.Colour.SRGB (
 
 import Data.Array.Accelerate                    as A
 import Data.Array.Accelerate.Data.Colour.RGB    ( RGB(..) )
+
+import Data.Functor                             ( fmap )
 
 
 -- | An sRGB colour value
@@ -54,9 +57,9 @@ srgb8 :: Exp Word8      -- ^ red component
       -> Exp Colour
 srgb8 r g b
   = lift
-  $ RGB (A.fromIntegral r / 255)
-        (A.fromIntegral g / 255)
-        (A.fromIntegral b / 255)
+  $ RGB (fromIntegral r / 255)
+        (fromIntegral g / 255)
+        (fromIntegral b / 255)
 
 
 -- | Clamp each component of a colour to the range [0..1].
@@ -64,7 +67,7 @@ srgb8 r g b
 clamp :: Exp Colour -> Exp Colour
 clamp = lift1 (fmap c :: SRGB (Exp Float) -> SRGB (Exp Float))
   where
-    c x = 0 `A.max` x `A.min` 1
+    c x = 0 `max` x `min` 1
 
 
 -- | Convert a colour in the non-linear RGB colour space into the linear sRGB
@@ -92,15 +95,15 @@ toRGB (unlift -> RGB r g b)
 --
 transferFunction :: Exp Float -> Exp Float
 transferFunction lin
-  = lin ==* 1         ? ( 1
-  , lin <=* 0.0031308 ? ( 12.92 * lin
-  , {- otherwise -}       let a = 0.055
-                          in (1 + a)*lin**(1/2.4) - a ))
+  = lin == 1         ? ( 1
+  , lin <= 0.0031308 ? ( 12.92 * lin
+  , {- otherwise -}      let a = 0.055
+                         in (1 + a)*lin**(1/2.4) - a ))
 
 invTransferFunction :: Exp Float -> Exp Float
 invTransferFunction nonlin
-  = nonlin ==* 1       ? ( 1
-  , nonlin <=* 0.04045 ? ( nonlin/12.92
-  , {- otherwise -}        let a = 0.055
-                           in ((nonlin + a)/(1 + a))**2.4 ))
+  = nonlin == 1       ? ( 1
+  , nonlin <= 0.04045 ? ( nonlin/12.92
+  , {- otherwise -}       let a = 0.055
+                          in ((nonlin + a)/(1 + a))**2.4 ))
 
