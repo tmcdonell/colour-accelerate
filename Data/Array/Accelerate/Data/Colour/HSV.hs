@@ -346,13 +346,13 @@ instance NamedColour (HSV Float) where
   goldenrodPale     = HSV  54.7112 0.2857 0.9333
   lightGoldenrod    = HSV  50.5643 0.4538 0.9333
   melon             = HSV  31.2500 0.5393 0.8900
-  naplesyellowdeep  = HSV  38.0645 0.9300 1.0000
+  naplesYellowDeep  = HSV  38.0645 0.9300 1.0000
   yellow            = HSV  60.0000 1.0000 1.0000
   yellowLight       = HSV  60.0000 0.1216 1.0000
 
   -- Greens
   chartreuse        = HSV  90.1200 1.0000 1.0000
-  chromeoxidegreen  = HSV  74.2857 0.8400 0.5000
+  chromeoxideGreen  = HSV  74.2857 0.8400 0.5000
   cinnabarGreen     = HSV  95.5556 0.7714 0.7000
   cobaltGreen       = HSV 121.8182 0.5789 0.5700
   emeraldGreen      = HSV 145.8228 1.0000 0.7900
@@ -374,14 +374,14 @@ instance NamedColour (HSV Float) where
   seaGreenMedium    = HSV 146.7152 0.6648 0.7020
   seaGreenLight     = HSV 176.7196 0.8202 0.6980
   springGreen       = HSV 149.8800 1.0000 1.0000
-  springGreenmedium = HSV 156.9584 1.0000 0.9804
+  springGreenMedium = HSV 156.9584 1.0000 0.9804
   terreVerte        = HSV  89.0323 0.8378 0.3700
   viridianLight     = HSV 121.0526 0.5700 1.0000
   yellowGreen       = HSV  79.7433 0.7561 0.8039
 
   -- Cyans
   aquamarine        = HSV 159.8486 0.5020 1.0000
-  aquamarinemedium  = HSV 159.6187 0.5024 0.8039
+  aquamarineMedium  = HSV 159.6187 0.5024 0.8039
   cyan              = HSV 180.0000 1.0000 1.0000
   cyanWhite         = HSV 180.0000 0.1216 1.0000
   turquoise         = HSV 174.0038 0.7143 0.8784
@@ -420,7 +420,7 @@ instance NamedColour (HSV Float) where
 
   -- Magentas
   blueViolet        = HSV 271.1495 0.8098 0.8863
-  cobaltVioletdeep  = HSV 293.8776 0.7903 0.6200
+  cobaltVioletDeep  = HSV 293.8776 0.7903 0.6200
   magenta           = HSV 300.0000 1.0000 1.0000
   orchid            = HSV 302.2660 0.4863 0.8549
   orchidDark        = HSV 280.1292 0.7549 0.8000
@@ -433,6 +433,6 @@ instance NamedColour (HSV Float) where
   violet            = HSV 289.5652 0.3833 0.6000
   violetDark        = HSV 282.0834 1.0000 0.8275
   violetRed         = HSV 321.8198 0.8461 0.8157
-  violetRedmedium   = HSV 322.2464 0.8944 0.7804
+  violetRedMedium   = HSV 322.2464 0.8944 0.7804
   violetRedPale     = HSV 340.3670 0.4886 0.8588
 

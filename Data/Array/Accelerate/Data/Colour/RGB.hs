@@ -385,13 +385,13 @@ instance NamedColour (RGB Word8) where
   goldenrodPale     = RGB 238 232 170
   lightGoldenrod    = RGB 238 221 130
   melon             = RGB 227 168 105
-  naplesyellowdeep  = RGB 255 168 18
+  naplesYellowDeep  = RGB 255 168 18
   yellow            = RGB 255 255 0
   yellowLight       = RGB 255 255 224
 
   -- Greens
   chartreuse        = RGB 127 255 0
-  chromeoxidegreen  = RGB 102 128 20
+  chromeoxideGreen  = RGB 102 128 20
   cinnabarGreen     = RGB 97  179 41
   cobaltGreen       = RGB 61  145 64
   emeraldGreen      = RGB 0   201 87
@@ -413,14 +413,14 @@ instance NamedColour (RGB Word8) where
   seaGreenMedium    = RGB 60  179 113
   seaGreenLight     = RGB 32  178 170
   springGreen       = RGB 0   255 127
-  springGreenmedium = RGB 0   250 154
+  springGreenMedium = RGB 0   250 154
   terreVerte        = RGB 56  94  15
   viridianLight     = RGB 110 255 112
   yellowGreen       = RGB 154 205 50
 
   -- Cyans
   aquamarine        = RGB 127 255 212
-  aquamarinemedium  = RGB 102 205 170
+  aquamarineMedium  = RGB 102 205 170
   cyan              = RGB 0   255 255
   cyanWhite         = RGB 224 255 255
   turquoise         = RGB 64  224 208
@@ -459,7 +459,7 @@ instance NamedColour (RGB Word8) where
 
   -- Magentas
   blueViolet        = RGB 138 43  226
-  cobaltVioletdeep  = RGB 145 33  158
+  cobaltVioletDeep  = RGB 145 33  158
   magenta           = RGB 255 0   255
   orchid            = RGB 218 112 214
   orchidDark        = RGB 153 50  204
@@ -472,7 +472,7 @@ instance NamedColour (RGB Word8) where
   violet            = RGB 143 94  153
   violetDark        = RGB 148 0   211
   violetRed         = RGB 208 32  144
-  violetRedmedium   = RGB 199 21  133
+  violetRedMedium   = RGB 199 21  133
   violetRedPale     = RGB 219 112 147
 
 instance NamedColour (RGB Float) where
@@ -598,13 +598,13 @@ instance NamedColour (RGB Float) where
   goldenrodPale     = RGB 0.9333 0.9098 0.6667
   lightGoldenrod    = RGB 0.9333 0.8667 0.5098
   melon             = RGB 0.8900 0.6600 0.4100
-  naplesyellowdeep  = RGB 1.0000 0.6600 0.0700
+  naplesYellowDeep  = RGB 1.0000 0.6600 0.0700
   yellow            = RGB 1.0000 1.0000 0.0000
   yellowLight       = RGB 1.0000 1.0000 0.8784
 
   -- Greens
   chartreuse        = RGB 0.4980 1.0000 0.0000
-  chromeoxidegreen  = RGB 0.4000 0.5000 0.0800
+  chromeoxideGreen  = RGB 0.4000 0.5000 0.0800
   cinnabarGreen     = RGB 0.3800 0.7000 0.1600
   cobaltGreen       = RGB 0.2400 0.5700 0.2500
   emeraldGreen      = RGB 0.0000 0.7900 0.3400
@@ -626,14 +626,14 @@ instance NamedColour (RGB Float) where
   seaGreenMedium    = RGB 0.2353 0.7020 0.4431
   seaGreenLight     = RGB 0.1255 0.6980 0.6667
   springGreen       = RGB 0.0000 1.0000 0.4980
-  springGreenmedium = RGB 0.0000 0.9804 0.6039
+  springGreenMedium = RGB 0.0000 0.9804 0.6039
   terreVerte        = RGB 0.2200 0.3700 0.0600
   viridianLight     = RGB 0.4300 1.0000 0.4400
   yellowGreen       = RGB 0.6039 0.8039 0.1961
 
   -- Cyans
   aquamarine        = RGB 0.4980 1.0000 0.8314
-  aquamarinemedium  = RGB 0.4000 0.8039 0.6667
+  aquamarineMedium  = RGB 0.4000 0.8039 0.6667
   cyan              = RGB 0.0000 1.0000 1.0000
   cyanWhite         = RGB 0.8784 1.0000 1.0000
   turquoise         = RGB 0.2510 0.8784 0.8157
@@ -672,7 +672,7 @@ instance NamedColour (RGB Float) where
 
   -- Magentas
   blueViolet        = RGB 0.5412 0.1686 0.8863
-  cobaltVioletdeep  = RGB 0.5700 0.1300 0.6200
+  cobaltVioletDeep  = RGB 0.5700 0.1300 0.6200
   magenta           = RGB 1.0000 0.0000 1.0000
   orchid            = RGB 0.8549 0.4392 0.8392
   orchidDark        = RGB 0.6000 0.1961 0.8000
@@ -685,6 +685,6 @@ instance NamedColour (RGB Float) where
   violet            = RGB 0.5600 0.3700 0.6000
   violetDark        = RGB 0.5804 0.0000 0.8275
   violetRed         = RGB 0.8157 0.1255 0.5647
-  violetRedmedium   = RGB 0.7804 0.0824 0.5216
+  violetRedMedium   = RGB 0.7804 0.0824 0.5216
   violetRedPale     = RGB 0.8588 0.4392 0.5765
 

@@ -346,13 +346,13 @@ instance NamedColour (HSL Float) where
   goldenrodPale     = HSL  54.7112 0.6665 0.8000
   lightGoldenrod    = HSL  50.5643 0.7605 0.7216
   melon             = HSL  31.2500 0.6857 0.6500
-  naplesyellowdeep  = HSL  38.0645 1.0000 0.5350
+  naplesYellowDeep  = HSL  38.0645 1.0000 0.5350
   yellow            = HSL  60.0000 1.0000 0.5000
   yellowLight       = HSL  60.0000 1.0000 0.9392
 
   -- Greens
   chartreuse        = HSL  90.1200 1.0000 0.5000
-  chromeoxidegreen  = HSL  74.2857 0.7241 0.2900
+  chromeoxideGreen  = HSL  74.2857 0.7241 0.2900
   cinnabarGreen     = HSL  95.5556 0.6279 0.4300
   cobaltGreen       = HSL 121.8182 0.4074 0.4050
   emeraldGreen      = HSL 145.8228 1.0000 0.3950
@@ -374,14 +374,14 @@ instance NamedColour (HSL Float) where
   seaGreenMedium    = HSL 146.7152 0.4979 0.4686
   seaGreenLight     = HSL 176.7196 0.6952 0.4118
   springGreen       = HSL 149.8800 1.0000 0.5000
-  springGreenmedium = HSL 156.9584 1.0000 0.4902
+  springGreenMedium = HSL 156.9584 1.0000 0.4902
   terreVerte        = HSL  89.0323 0.7209 0.2150
   viridianLight     = HSL 121.0526 1.0000 0.7150
   yellowGreen       = HSL  79.7433 0.6078 0.5000
 
   -- Cyans
   aquamarine        = HSL 159.8486 1.0000 0.7490
-  aquamarinemedium  = HSL 159.6187 0.5073 0.6020
+  aquamarineMedium  = HSL 159.6187 0.5073 0.6020
   cyan              = HSL 180.0000 1.0000 0.5000
   cyanWhite         = HSL 180.0000 1.0000 0.9392
   turquoise         = HSL 174.0038 0.7207 0.5647
@@ -420,7 +420,7 @@ instance NamedColour (HSL Float) where
 
   -- Magentas
   blueViolet        = HSL 271.1495 0.7594 0.5274
-  cobaltVioletdeep  = HSL 293.8776 0.6533 0.3750
+  cobaltVioletDeep  = HSL 293.8776 0.6533 0.3750
   magenta           = HSL 300.0000 1.0000 0.5000
   orchid            = HSL 302.2660 0.5889 0.6470
   orchidDark        = HSL 280.1292 0.6063 0.4980
@@ -433,6 +433,6 @@ instance NamedColour (HSL Float) where
   violet            = HSL 289.5652 0.2371 0.4850
   violetDark        = HSL 282.0834 1.0000 0.4138
   violetRed         = HSL 321.8198 0.7333 0.4706
-  violetRedmedium   = HSL 322.2464 0.8090 0.4314
+  violetRedMedium   = HSL 322.2464 0.8090 0.4314
   violetRedPale     = HSL 340.3670 0.5977 0.6490
 

@@ -418,13 +418,13 @@ instance NamedColour (RGBA Word8) where
   goldenrodPale     = RGBA 238 232 170 255
   lightGoldenrod    = RGBA 238 221 130 255
   melon             = RGBA 227 168 105 255
-  naplesyellowdeep  = RGBA 255 168 18  255
+  naplesYellowDeep  = RGBA 255 168 18  255
   yellow            = RGBA 255 255 0   255
   yellowLight       = RGBA 255 255 224 255
 
   -- Greens
   chartreuse        = RGBA 127 255 0   255
-  chromeoxidegreen  = RGBA 102 128 20  255
+  chromeoxideGreen  = RGBA 102 128 20  255
   cinnabarGreen     = RGBA 97  179 41  255
   cobaltGreen       = RGBA 61  145 64  255
   emeraldGreen      = RGBA 0   201 87  255
@@ -446,14 +446,14 @@ instance NamedColour (RGBA Word8) where
   seaGreenMedium    = RGBA 60  179 113 255
   seaGreenLight     = RGBA 32  178 170 255
   springGreen       = RGBA 0   255 127 255
-  springGreenmedium = RGBA 0   250 154 255
+  springGreenMedium = RGBA 0   250 154 255
   terreVerte        = RGBA 56  94  15  255
   viridianLight     = RGBA 110 255 112 255
   yellowGreen       = RGBA 154 205 50  255
 
   -- Cyans
   aquamarine        = RGBA 127 255 212 255
-  aquamarinemedium  = RGBA 102 205 170 255
+  aquamarineMedium  = RGBA 102 205 170 255
   cyan              = RGBA 0   255 255 255
   cyanWhite         = RGBA 224 255 255 255
   turquoise         = RGBA 64  224 208 255
@@ -492,7 +492,7 @@ instance NamedColour (RGBA Word8) where
 
   -- Magentas
   blueViolet        = RGBA 138 43  226 255
-  cobaltVioletdeep  = RGBA 145 33  158 255
+  cobaltVioletDeep  = RGBA 145 33  158 255
   magenta           = RGBA 255 0   255 255
   orchid            = RGBA 218 112 214 255
   orchidDark        = RGBA 153 50  204 255
@@ -505,7 +505,7 @@ instance NamedColour (RGBA Word8) where
   violet            = RGBA 143 94  153 255
   violetDark        = RGBA 148 0   211 255
   violetRed         = RGBA 208 32  144 255
-  violetRedmedium   = RGBA 199 21  133 255
+  violetRedMedium   = RGBA 199 21  133 255
   violetRedPale     = RGBA 219 112 147 255
 
 instance NamedColour (RGBA Float) where
@@ -631,13 +631,13 @@ instance NamedColour (RGBA Float) where
   goldenrodPale     = RGBA 0.9333 0.9098 0.6667 1.0000
   lightGoldenrod    = RGBA 0.9333 0.8667 0.5098 1.0000
   melon             = RGBA 0.8900 0.6600 0.4100 1.0000
-  naplesyellowdeep  = RGBA 1.0000 0.6600 0.0700 1.0000
+  naplesYellowDeep  = RGBA 1.0000 0.6600 0.0700 1.0000
   yellow            = RGBA 1.0000 1.0000 0.0000 1.0000
   yellowLight       = RGBA 1.0000 1.0000 0.8784 1.0000
 
   -- Greens
   chartreuse        = RGBA 0.4980 1.0000 0.0000 1.0000
-  chromeoxidegreen  = RGBA 0.4000 0.5000 0.0800 1.0000
+  chromeoxideGreen  = RGBA 0.4000 0.5000 0.0800 1.0000
   cinnabarGreen     = RGBA 0.3800 0.7000 0.1600 1.0000
   cobaltGreen       = RGBA 0.2400 0.5700 0.2500 1.0000
   emeraldGreen      = RGBA 0.0000 0.7900 0.3400 1.0000
@@ -659,14 +659,14 @@ instance NamedColour (RGBA Float) where
   seaGreenMedium    = RGBA 0.2353 0.7020 0.4431 1.0000
   seaGreenLight     = RGBA 0.1255 0.6980 0.6667 1.0000
   springGreen       = RGBA 0.0000 1.0000 0.4980 1.0000
-  springGreenmedium = RGBA 0.0000 0.9804 0.6039 1.0000
+  springGreenMedium = RGBA 0.0000 0.9804 0.6039 1.0000
   terreVerte        = RGBA 0.2200 0.3700 0.0600 1.0000
   viridianLight     = RGBA 0.4300 1.0000 0.4400 1.0000
   yellowGreen       = RGBA 0.6039 0.8039 0.1961 1.0000
 
   -- Cyans
   aquamarine        = RGBA 0.4980 1.0000 0.8314 1.0000
-  aquamarinemedium  = RGBA 0.4000 0.8039 0.6667 1.0000
+  aquamarineMedium  = RGBA 0.4000 0.8039 0.6667 1.0000
   cyan              = RGBA 0.0000 1.0000 1.0000 1.0000
   cyanWhite         = RGBA 0.8784 1.0000 1.0000 1.0000
   turquoise         = RGBA 0.2510 0.8784 0.8157 1.0000
@@ -705,7 +705,7 @@ instance NamedColour (RGBA Float) where
 
   -- Magentas
   blueViolet        = RGBA 0.5412 0.1686 0.8863 1.0000
-  cobaltVioletdeep  = RGBA 0.5700 0.1300 0.6200 1.0000
+  cobaltVioletDeep  = RGBA 0.5700 0.1300 0.6200 1.0000
   magenta           = RGBA 1.0000 0.0000 1.0000 1.0000
   orchid            = RGBA 0.8549 0.4392 0.8392 1.0000
   orchidDark        = RGBA 0.6000 0.1961 0.8000 1.0000
@@ -718,6 +718,6 @@ instance NamedColour (RGBA Float) where
   violet            = RGBA 0.5600 0.3700 0.6000 1.0000
   violetDark        = RGBA 0.5804 0.0000 0.8275 1.0000
   violetRed         = RGBA 0.8157 0.1255 0.5647 1.0000
-  violetRedmedium   = RGBA 0.7804 0.0824 0.5216 1.0000
+  violetRedMedium   = RGBA 0.7804 0.0824 0.5216 1.0000
   violetRedPale     = RGBA 0.8588 0.4392 0.5765 1.0000
 
