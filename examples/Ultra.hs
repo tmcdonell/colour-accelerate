@@ -10,13 +10,14 @@
 module Main where
 
 import Data.Array.Accelerate                              as A
+import Data.Array.Accelerate.Interpreter                  as A
 import Data.Array.Accelerate.IO                           as A  -- package: accelerate-io
--- import Data.Array.Accelerate.Interpreter                  as A
-import Data.Array.Accelerate.LLVM.Native                  as A
+import Data.Array.Accelerate.Control.Lens                 as A  -- package: lens-accelerate
 
 import Data.Array.Accelerate.Data.Colour.RGB
 import Data.Array.Accelerate.Data.Colour.Names
 
+import Prelude                                            ( fromInteger )
 import qualified Prelude                                  as P
 
 width, height :: Int
@@ -25,30 +26,37 @@ height = 100
 
 
 ultra :: Exp Float -> Exp Colour
-ultra p =
-  if p <= p1 then interp (p0,p1) (c0,c1) (m0,m1) p else
-  if p <= p2 then interp (p1,p2) (c1,c2) (m1,m2) p else
-  if p <= p3 then interp (p2,p3) (c2,c3) (m2,m3) p else
-  if p <= p4 then interp (p3,p4) (c3,c4) (m3,m4) p else
-                  interp (p4,p5) (c4,c5) (m4,m5) p
+ultra p
+  = interp p
+  $ if p <= p1 then lift (p0,p1,c0,c1,m0,m1) else
+    if p <= p2 then lift (p1,p2,c1,c2,m1,m2) else
+    if p <= p3 then lift (p2,p3,c2,c3,m2,m3) else
+    if p <= p4 then lift (p3,p4,c3,c4,m3,m4) else
+                    lift (p4,p5,c4,c5,m4,m5)
   where
-    p0 = 0.0     ; c0 = rgb8 0   7   100  ; m0 = (0.7843138, 2.4509804, 2.52451)
-    p1 = 0.16    ; c1 = rgb8 32  107 203  ; m1 = (1.93816,   2.341629,  1.6544118)
+    p0,p1,p2,p3,p4,p5 :: Exp Float
+    m0,m1,m2,m3,m4,m5 :: (Float,Float,Float)
+    p0 = 0.0     ; c0 = rgb8 0   7   100  ; m0 = (0.7843138, 2.4509804,  2.52451)
+    p1 = 0.16    ; c1 = rgb8 32  107 203  ; m1 = (1.93816,   2.341629,   1.6544118)
     p2 = 0.42    ; c2 = rgb8 237 255 255  ; m2 = (1.7046283, 0.0,        0.0)
     p3 = 0.6425  ; c3 = rgb8 255 170 0    ; m3 = (0.0,       -2.2812111, 0.0)
     p4 = 0.8575  ; c4 = rgb8 0   2   0    ; m4 = (0.0,       0.0,        0.0)
     p5 = 1.0     ; c5 = c0                ; m5 = m0
 
-    -- interpolate between each of the RGB components
-    interp :: (Exp Float, Exp Float)
-           -> (Exp Colour, Exp Colour)
-           -> ((Exp Float,Exp Float,Exp Float),(Exp Float,Exp Float,Exp Float))
-           -> Exp Float
+    interp :: Exp Float
+           -> Exp (Float,Float,Colour,Colour,(Float,Float,Float),(Float,Float,Float))
            -> Exp Colour
-    interp (x0,x1) (unlift -> RGB r0 g0 b0, unlift -> RGB r1 g1 b1) ((mr0,mg0,mb0),(mr1,mg1,mb1)) x =
-      rgb (linear (x0,x1) (r0,r1) (mr0,mr1) x)
-          (linear (x0,x1) (g0,g1) (mg0,mg1) x)
-          (linear (x0,x1) (b0,b1) (mb0,mb1) x)
+    interp x cs =
+      let
+          x0            = cs^._1
+          x1            = cs^._2
+          RGB r0 g0 b0  = unlift (cs^._3) :: RGB (Exp Float)
+          RGB r1 g1 b1  = unlift (cs^._4) :: RGB (Exp Float)
+      in
+      rgb (cubic (x0,x1) (r0,r1) (cs^._5._1,cs^._6._1) x)
+          (cubic (x0,x1) (g0,g1) (cs^._5._2,cs^._6._2) x)
+          (cubic (x0,x1) (b0,b1) (cs^._5._3,cs^._6._3) x)
+
 
 -- cubic interpolation
 cubic :: (Exp Float, Exp Float)
