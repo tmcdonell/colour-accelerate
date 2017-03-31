@@ -50,5 +50,10 @@ source-repository head
   type:               git
   location:           https://github.com/tmcdonell/colour-accelerate
 
+source-repository this
+  type:               git
+  tag:                0.1.0.0
+  location:           https://github.com/tmcdonell/colour-accelerate
+
 -- vim: nospell
 
