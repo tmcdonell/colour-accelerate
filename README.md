@@ -2,6 +2,7 @@ colour-accelerate
 =================
 
 [![Build Status](https://travis-ci.org/tmcdonell/colour-accelerate.svg?branch=master)](https://travis-ci.org/tmcdonell/colour-accelerate)
+[![Hackage](https://img.shields.io/hackage/v/colour-accelerate.svg)](https://hackage.haskell.org/package/colour-accelerate)
 
 This package provides data types and operations for dealing with colours in
 Accelerate. For details on Accelerate, refer to the [main
