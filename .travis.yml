@@ -38,7 +38,7 @@ matrix:
 
     - env: GHC=8.2.0 CABAL=2.0
       compiler: "GHC 8.2"
-      addons: { apt: { sources: [ *opt_sources ], packages: [ *apt_packages, cabal-install-2.0 ] }}
+      addons: { apt: { sources: [ *apt_sources ], packages: [ *apt_packages, cabal-install-2.0 ] }}
 
     # - env: GHC=head CABAL=head
     #   compiler: "GHC HEAD"
