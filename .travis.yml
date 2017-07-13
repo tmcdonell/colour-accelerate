@@ -4,7 +4,8 @@
 # directory to speed subsequent compilations.
 #
 language: generic
-dist: precise
+dist: trusty
+sudo: false
 
 cache:
   directories:
@@ -35,12 +36,16 @@ matrix:
       compiler: "GHC 8.0"
       addons: { apt: { sources: [ *apt_sources ], packages: [ *apt_packages, cabal-install-1.24 ] }}
 
-    - env: GHC=head CABAL=head
-      compiler: "GHC HEAD"
-      addons: { apt: { sources: [ *apt_sources ], packages: [ *apt_packages, ghc-head, cabal-install-head ] }}
+    - env: GHC=8.2.0 CABAL=2.0
+      compiler: "GHC 8.2"
+      addons: { apt: { sources: [ *opt_sources ], packages: [ *apt_packages, cabal-install-2.0 ] }}
 
-  allow_failures:
-    - env: GHC=head CABAL=head
+    # - env: GHC=head CABAL=head
+    #   compiler: "GHC HEAD"
+    #   addons: { apt: { sources: [ *apt_sources ], packages: [ *apt_packages, ghc-head, cabal-install-head ] }}
+
+  # allow_failures:
+  #   - env: GHC=head CABAL=head
 
   fast_finish: true
 
@@ -56,7 +61,7 @@ install:
       if [ ${GHC} == head -o ! -e stack.yaml ]; then
         travis_retry cabal install --only-dependencies
       else
-        travis_retry stack build --only-dependencies --no-terminal --no-haddock-deps
+        travis_retry stack build --only-dependencies --fast --no-terminal --no-haddock-deps
       fi
 
 script:
@@ -65,7 +70,7 @@ script:
         cabal install
         cabal haddock
       else
-        stack build --no-terminal --haddock --no-haddock-deps
+        stack build --fast --no-terminal --haddock --no-haddock-deps
       fi
 
 after_success:
