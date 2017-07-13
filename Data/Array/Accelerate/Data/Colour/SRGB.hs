@@ -23,10 +23,10 @@ module Data.Array.Accelerate.Data.Colour.SRGB (
 
 ) where
 
-import Data.Array.Accelerate                    as A
-import Data.Array.Accelerate.Data.Colour.RGB    ( RGB(..) )
+import Data.Array.Accelerate                                        as A hiding ( clamp )
+import Data.Array.Accelerate.Data.Colour.RGB                        ( RGB(..) )
 
-import Data.Functor                             ( fmap )
+import Data.Functor                                                 ( fmap )
 
 
 -- | An sRGB colour value

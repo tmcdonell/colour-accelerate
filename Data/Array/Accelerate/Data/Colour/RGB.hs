@@ -40,16 +40,16 @@ module Data.Array.Accelerate.Data.Colour.RGB (
 
 ) where
 
-import Data.Array.Accelerate                              as A
+import Data.Array.Accelerate                                        as A hiding ( clamp )
 import Data.Array.Accelerate.Smart
-import Data.Array.Accelerate.Product                      ( TupleIdx(..), IsProduct(..) )
-import Data.Array.Accelerate.Array.Sugar                  ( Elt(..), EltRepr, Tuple(..) )
+import Data.Array.Accelerate.Product                                ( TupleIdx(..), IsProduct(..) )
+import Data.Array.Accelerate.Array.Sugar                            ( Elt(..), EltRepr, Tuple(..) )
 
 import Data.Array.Accelerate.Data.Colour.Names
 import Data.Array.Accelerate.Data.Colour.Internal.Pack
 
 import Data.Typeable
-import Prelude                                            as P
+import Prelude                                                      as P
 
 
 -- | An RGB colour value

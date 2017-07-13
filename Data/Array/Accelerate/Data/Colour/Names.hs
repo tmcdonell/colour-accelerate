@@ -15,7 +15,7 @@
 module Data.Array.Accelerate.Data.Colour.Names
   where
 
-import Data.Array.Accelerate                              ( Elt, Exp, constant )
+import Data.Array.Accelerate                                        ( Elt, Exp, constant )
 
 
 class NamedColour c where
