@@ -1,13 +1,13 @@
 # For more information, see: https://github.com/commercialhaskell/stack/blob/release/doc/yaml_configuration.md
 # vim: nospell
 
-resolver: lts-8.0
+resolver: lts-9.0
 
 packages:
 - '.'
 - location:
     git:    https://github.com/tmcdonell/accelerate.git
-    commit: 75b48553724c9e48dacbde2ee693cde7d066a6db
+    commit: aee5f0232e2cfdcf030e2a7ca0570e9ced017d63
   extra-dep: true
 
 extra-deps:
