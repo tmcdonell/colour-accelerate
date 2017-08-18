@@ -5,6 +5,7 @@ resolver: lts-2.22
 
 packages:
 - '.'
+
 - location:
     git:    https://github.com/tmcdonell/accelerate.git
     commit: aee5f0232e2cfdcf030e2a7ca0570e9ced017d63
