@@ -40,18 +40,18 @@ module Data.Array.Accelerate.Data.Colour.HSV (
 
 ) where
 
-import Data.Array.Accelerate                    as A
+import Data.Array.Accelerate                                        as A hiding ( clamp )
 import Data.Array.Accelerate.Smart
-import Data.Array.Accelerate.Product            ( TupleIdx(..), IsProduct(..) )
-import Data.Array.Accelerate.Array.Sugar        ( Elt(..), EltRepr, Tuple(..) )
+import Data.Array.Accelerate.Product                                ( TupleIdx(..), IsProduct(..) )
+import Data.Array.Accelerate.Array.Sugar                            ( Elt(..), EltRepr, Tuple(..) )
 
-import Data.Array.Accelerate.Data.Colour.RGB    ( RGB(..) )
-import Data.Array.Accelerate.Data.Colour.Names  as C
+import Data.Array.Accelerate.Data.Colour.RGB                        ( RGB(..) )
+import Data.Array.Accelerate.Data.Colour.Names                      as C
 
 import Data.Functor
 import Data.Typeable
-import Prelude                                  ( fromInteger )   -- ghc < 8 bug
-import qualified Prelude                        as P
+import Prelude                                                      ( fromInteger )   -- ghc < 8 bug
+import qualified Prelude                                            as P
 
 
 -- | A HSV colour value
