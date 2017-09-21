@@ -19,6 +19,7 @@ homepage:             https://github.com/tmcdonell/colour-accelerate
 bug-reports:          https://github.com/tmcdonell/colour-accelerate/issues
 
 extra-source-files:
+  CHANGELOG.md
   README.md
   examples/*.hs
 
