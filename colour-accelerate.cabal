@@ -13,7 +13,7 @@ maintainer:           Trevor L. McDonell <tmcdonell@cse.unsw.edu.au>
 copyright:            Copyright (c) [2016]. Trevor L. McDonell <tmcdonell@cse.unsw.edu.au>
 category:             Data, Graphics
 build-type:           Simple
-cabal-version:        >=1.10
+cabal-version:        >=1.18
 
 homepage:             https://github.com/tmcdonell/colour-accelerate
 bug-reports:          https://github.com/tmcdonell/colour-accelerate/issues
