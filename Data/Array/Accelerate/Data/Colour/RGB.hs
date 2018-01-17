@@ -228,7 +228,7 @@ instance P.Num a => P.Num (RGB a) where
         = RGB (signum r1) (signum g1) (signum b1)
 
   fromInteger i
-        = let f = fromInteger i
+        = let f = P.fromInteger i
           in  RGB f f f
 
 instance (P.Num a, P.Fractional a) => P.Fractional (RGB a) where
@@ -239,7 +239,7 @@ instance (P.Num a, P.Fractional a) => P.Fractional (RGB a) where
         = RGB (recip r1) (recip g1) (recip b1)
 
   fromRational r
-        = let f = fromRational r
+        = let f = P.fromRational r
           in  RGB f f f
 
 
@@ -249,13 +249,13 @@ instance {-# OVERLAPS #-} A.Num a => P.Num (Exp (RGB a)) where
   (*)           = lift2 ((*) :: RGB (Exp a) -> RGB (Exp a) -> RGB (Exp a))
   abs           = lift1 (abs :: RGB (Exp a) -> RGB (Exp a))
   signum        = lift1 (signum :: RGB (Exp a) -> RGB (Exp a))
-  fromInteger i = let f = fromInteger i :: Exp a
+  fromInteger i = let f = P.fromInteger i :: Exp a
                   in  lift $ RGB f f f
 
 instance {-# OVERLAPS #-} A.Fractional a => P.Fractional (Exp (RGB a)) where
   (/)            = lift2 ((/) :: RGB (Exp a) -> RGB (Exp a) -> RGB (Exp a))
   recip          = lift1 (recip :: RGB (Exp a) -> RGB (Exp a))
-  fromRational r = let f = fromRational r :: Exp a
+  fromRational r = let f = P.fromRational r :: Exp a
                    in lift $ RGB f f f
 
 

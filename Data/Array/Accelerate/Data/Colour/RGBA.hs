@@ -260,7 +260,7 @@ instance P.Num a => P.Num (RGBA a) where
         = RGBA (signum r1) (signum g1) (signum b1) 1
 
   fromInteger i
-        = let f = fromInteger i
+        = let f = P.fromInteger i
           in  RGBA f f f 1
 
 instance (P.Num a, P.Fractional a) => P.Fractional (RGBA a) where
@@ -271,7 +271,7 @@ instance (P.Num a, P.Fractional a) => P.Fractional (RGBA a) where
         = RGBA (recip r1) (recip g1) (recip b1) 1
 
   fromRational r
-        = let f = fromRational r
+        = let f = P.fromRational r
           in  RGBA f f f 1
 
 instance {-# OVERLAPS #-} A.Num a => P.Num (Exp (RGBA a)) where
@@ -280,15 +280,15 @@ instance {-# OVERLAPS #-} A.Num a => P.Num (Exp (RGBA a)) where
   (*)           = lift2 ((*) :: RGBA (Exp a) -> RGBA (Exp a) -> RGBA (Exp a))
   abs           = lift1 (abs :: RGBA (Exp a) -> RGBA (Exp a))
   signum        = lift1 (signum :: RGBA (Exp a) -> RGBA (Exp a))
-  fromInteger i = let f = fromInteger i
-                      a = fromInteger 1 :: Exp a
+  fromInteger i = let f = P.fromInteger i
+                      a = P.fromInteger 1 :: Exp a
                   in lift $ RGBA f f f a
 
 instance {-# OVERLAPS #-} A.Fractional a => P.Fractional (Exp (RGBA a)) where
   (/)            = lift2 ((/) :: RGBA (Exp a) -> RGBA (Exp a) -> RGBA (Exp a))
   recip          = lift1 (recip :: RGBA (Exp a) -> RGBA (Exp a))
-  fromRational r = let f = fromRational r
-                       a = fromRational 1 :: Exp a
+  fromRational r = let f = P.fromRational r
+                       a = P.fromRational 1 :: Exp a
                    in lift $ RGBA f f f a
 
 
