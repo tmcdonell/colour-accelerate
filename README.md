@@ -2,6 +2,8 @@ colour-accelerate
 =================
 
 [![Build Status](https://travis-ci.org/tmcdonell/colour-accelerate.svg?branch=master)](https://travis-ci.org/tmcdonell/colour-accelerate)
+[![Stackage LTS](https://stackage.org/package/colour-accelerate/badge/lts)](https://stackage.org/lts/package/colour-accelerate)
+[![Stackage Nightly](https://stackage.org/package/colour-accelerate/badge/nightly)](https://stackage.org/nightly/package/colour-accelerate)
 [![Hackage](https://img.shields.io/hackage/v/colour-accelerate.svg)](https://hackage.haskell.org/package/colour-accelerate)
 
 This package provides data types and operations for dealing with colours in
