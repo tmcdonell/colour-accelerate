@@ -51,6 +51,7 @@ import Data.Array.Accelerate.Data.Colour.Names
 import Data.Array.Accelerate.Data.Colour.Internal.Pack              ( word8OfFloat )
 
 import Data.Typeable
+import GHC.TypeLits                                                 ( ) -- ghc-8.0 bug??
 import Prelude                                                      as P
 
 
