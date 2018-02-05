@@ -7,8 +7,16 @@ packages:
 - '.'
 
 extra-deps:
-- 'accelerate-1.1.0.0'
+- git:    https://github.com/tmcdonell/accelerate.git
+  commit: 2a19ab7e892c2fed3c9e29145e5c616b9be3444a
+
+- 'cabal-doctest-1.0.4'
+- 'hedgehog-0.5.1'
+- 'tasty-hedgehog-0.1.0.1'
+- 'transformers-0.5.5.0'
+- 'transformers-compat-0.5.1.4'
 - 'unique-0'
+- 'wl-pprint-annotated-0.1.0.0'
 
 # Override default flag values for local packages and extra-deps
 # flags: {}

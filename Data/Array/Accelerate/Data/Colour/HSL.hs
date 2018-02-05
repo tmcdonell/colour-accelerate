@@ -25,6 +25,8 @@
 -- Colours in the HSL (hue-saturation-lightness) cylindrical-coordinate
 -- representation of points in the RGB colour space.
 --
+-- <https://en.wikipedia.org/wiki/HSL_and_HSV>
+--
 
 module Data.Array.Accelerate.Data.Colour.HSL (
 
