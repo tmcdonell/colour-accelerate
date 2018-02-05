@@ -1,5 +1,5 @@
 name:                 colour-accelerate
-version:              0.2.0.0
+version:              0.3.0.0
 synopsis:             Working with colours in Accelerate
 description:
   This package provides data types for colours and transparency for use with
@@ -53,7 +53,7 @@ source-repository head
 
 source-repository this
   type:               git
-  tag:                0.2.0.0
+  tag:                0.3.0.0
   location:           https://github.com/tmcdonell/colour-accelerate
 
 -- vim: nospell
