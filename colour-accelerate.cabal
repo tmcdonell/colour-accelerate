@@ -31,9 +31,10 @@ library
   default-language:   Haskell2010
   build-depends:
         base                >= 4.7 && < 4.11
-      , accelerate          >= 1.1
+      , accelerate          >= 1.2
 
-  ghc-options:        -Wall
+  ghc-options:
+      -Wall
 
   exposed-modules:
       Data.Array.Accelerate.Data.Colour.HSL

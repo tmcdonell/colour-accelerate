@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and the
 project adheres to the [Haskell Package Versioning
 Policy (PVP)](https://pvp.haskell.org)
 
+## [next]
+### Changed
+  * update to accelerate-1.2
+  * RGB and RGBA colours with Word8 components are stored in packed
+    array-of-struct representation
+
 ## [0.2.0.0] - 2017-09-21
   * update for accelerate-1.1.*
 
@@ -13,6 +19,7 @@ Policy (PVP)](https://pvp.haskell.org)
   * initial release
 
 
+[next]:       https://github.com/tmcdonell/colour-accelerate/compare/0.2.0.0...HEAD
 [0.2.0.0]:    https://github.com/tmcdonell/colour-accelerate/compare/0.1.0.0...0.2.0.0
 [0.1.0.0]:    https://github.com/tmcdonell/colour-accelerate/compare/6b2dc2e55bc0503aa4c94b883f6b608aaa734101...0.1.0.0
 
