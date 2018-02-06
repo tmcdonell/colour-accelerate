@@ -244,6 +244,14 @@ instance IsProduct Elt (RGBA Word8) where
   toProd cst p                = let V4 r g b a = toProd cst p in RGBA r g b a
   prod cst _                  = prod cst (undefined :: V4 Word8)
 
+instance Lift Exp (RGBA Float) where
+  type Plain (RGBA Float) = RGBA Float
+  lift = constant
+
+instance Lift Exp (RGBA Word8) where
+  type Plain (RGBA Word8) = RGBA Word8
+  lift = constant
+
 instance Lift Exp (RGBA (Exp Float)) where
   type Plain (RGBA (Exp Float)) = RGBA Float
   lift (RGBA r g b a)           = Exp . Tuple $ NilTup `SnocTup` r `SnocTup` g `SnocTup` b `SnocTup` a

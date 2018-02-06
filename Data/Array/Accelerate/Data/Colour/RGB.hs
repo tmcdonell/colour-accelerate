@@ -223,6 +223,14 @@ instance IsProduct Elt (RGB Word8) where
   toProd cst p              = let V3 r g b = toProd cst p in RGB r g b
   prod cst _                = prod cst (undefined :: V3 Word8)
 
+instance Lift Exp (RGB Float) where
+  type Plain (RGB Float) = RGB Float
+  lift = constant
+
+instance Lift Exp (RGB Word8) where
+  type Plain (RGB Word8) = RGB Word8
+  lift = constant
+
 instance Lift Exp (RGB (Exp Float)) where
   type Plain (RGB (Exp Float)) = RGB Float
   lift (RGB r g b)             = Exp . Tuple $ NilTup `SnocTup` r `SnocTup` g `SnocTup` b
