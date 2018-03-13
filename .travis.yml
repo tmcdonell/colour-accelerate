@@ -41,6 +41,10 @@ matrix:
       compiler: "GHC 8.2"
       addons: { apt: { sources: [ *apt_sources ], packages: [ *apt_packages, cabal-install-2.0 ] }}
 
+    - env: GHC=8.4.1 CABAL=2.0
+      compiler: "GHC 8.4"
+      addons: { apt: { sources: [ *apt_sources ], packages: [ *apt_packages, cabal-install-2.0 ] }}
+
     # - env: GHC=head CABAL=head
     #   compiler: "GHC HEAD"
     #   addons: { apt: { sources: [ *apt_sources ], packages: [ *apt_packages, ghc-head, cabal-install-head ] }}
@@ -55,13 +59,13 @@ before_install:
   - source .travis/install-stack.sh
 
 install:
-  - echo "$(ghc --version) [$(ghc --print-project-git-commit-id 2> /dev/null || echo '?')]"
+  - echo "$(stack exec ghc -- --version) [$(stack exec ghc -- --print-project-git-commit-id 2> /dev/null || echo '?')]"
   - cabal --version
   - stack --version
-  - travis_retry travis_wait 60 stack build --only-dependencies --fast --jobs=2 --no-terminal --no-haddock-deps --no-copy-bins
+  - travis_retry travis_wait 60 stack build --only-dependencies --fast --no-terminal --no-haddock-deps --no-copy-bins
 
 script:
-  - travis_retry stack build --fast --jobs=2 --no-terminal --haddock --no-haddock-deps
+  - travis_retry stack build --fast --no-terminal --haddock --no-haddock-deps
 
 after_success:
   - source .travis/update-accelerate-buildbot.sh
