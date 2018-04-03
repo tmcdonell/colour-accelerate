@@ -1,17 +1,15 @@
 # For more information, see: http://docs.haskellstack.org/en/stable/yaml_configuration.html
 # vim: nospell
 
-resolver: lts-6.30
+resolver: lts-6.35
 
 packages:
 - '.'
 
 extra-deps:
-- git:    https://github.com/tmcdonell/accelerate.git
-  commit: 0f98ba984efacc22aa2c488de5ad08a513b65ef3
-
-- 'cabal-doctest-1.0.6'
+- 'accelerate-1.2.0.0'
 - 'constraints-0.9.1'
+- 'hashtables-1.2.3.0'
 - 'hedgehog-0.5.3'
 - 'tasty-hedgehog-0.2.0.0'
 - 'unique-0'
