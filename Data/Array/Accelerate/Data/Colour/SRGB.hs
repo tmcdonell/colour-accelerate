@@ -57,7 +57,7 @@ srgb8 :: Exp Word8      -- ^ red component
       -> Exp Colour
 srgb8 r g b
   = lift
-  $ RGB (fromIntegral r / 255)
+  $ RGB (fromIntegral r / 255 :: Exp Float)
         (fromIntegral g / 255)
         (fromIntegral b / 255)
 

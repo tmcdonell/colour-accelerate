@@ -7,14 +7,15 @@ packages:
 - '.'
 
 extra-deps:
-- 'accelerate-1.1.0.0'
-- 'unique-0'
+- 'accelerate-1.2.0.0'
+- 'hashtables-1.2.3.0'
+- 'tasty-hedgehog-0.2.0.0'
 
 # Override default flag values for local packages and extra-deps
-flags: {}
+# flags: {}
 
 # Extra package databases containing global packages
-extra-package-dbs: []
+# extra-package-dbs: []
 
 # Control whether we use the GHC we find on the path
 # system-ghc: true

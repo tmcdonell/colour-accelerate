@@ -1,5 +1,5 @@
 name:                 colour-accelerate
-version:              0.2.0.0
+version:              0.3.0.0
 synopsis:             Working with colours in Accelerate
 description:
   This package provides data types for colours and transparency for use with
@@ -30,10 +30,11 @@ extra-doc-files:
 library
   default-language:   Haskell2010
   build-depends:
-        base                >= 4.7 && < 4.11
-      , accelerate          >= 1.1
+        base                >= 4.7 && < 4.12
+      , accelerate          >= 1.2
 
-  ghc-options:        -Wall
+  ghc-options:
+      -Wall
 
   exposed-modules:
       Data.Array.Accelerate.Data.Colour.HSL
@@ -53,7 +54,7 @@ source-repository head
 
 source-repository this
   type:               git
-  tag:                0.2.0.0
+  tag:                0.3.0.0
   location:           https://github.com/tmcdonell/colour-accelerate
 
 -- vim: nospell

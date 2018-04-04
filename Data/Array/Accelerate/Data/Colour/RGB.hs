@@ -41,18 +41,20 @@ module Data.Array.Accelerate.Data.Colour.RGB (
 ) where
 
 import Data.Array.Accelerate                                        as A hiding ( clamp )
-import Data.Array.Accelerate.Smart
-import Data.Array.Accelerate.Product                                ( TupleIdx(..), IsProduct(..) )
 import Data.Array.Accelerate.Array.Sugar                            ( Elt(..), EltRepr, Tuple(..) )
+import Data.Array.Accelerate.Product                                ( TupleIdx(..), IsProduct(..) )
+import Data.Array.Accelerate.Smart
+import Data.Array.Accelerate.Type
 
 import Data.Array.Accelerate.Data.Colour.Names
-import Data.Array.Accelerate.Data.Colour.Internal.Pack
+import Data.Array.Accelerate.Data.Colour.RGBA                       ( RGBA(..) )
+import Data.Array.Accelerate.Data.Colour.Internal.Pack              ( word8OfFloat )
 
 import Data.Typeable
 import Prelude                                                      as P
 
 
--- | An RGB colour value
+-- | An RGB colour value, in an unspecified colour space.
 --
 type Colour = RGB Float
 
@@ -76,7 +78,7 @@ rgb8 :: Exp Word8       -- ^ red component
      -> Exp Colour
 rgb8 r g b
   = lift
-  $ RGB (A.fromIntegral r / 255)
+  $ RGB (A.fromIntegral r / 255 :: Exp Float)
         (A.fromIntegral g / 255)
         (A.fromIntegral b / 255)
 
@@ -139,77 +141,121 @@ luminance (unlift -> RGB r g b) = 0.299*r + 0.587*g + 0.114*b
 -- | Convert a Colour into a packed-word RGBA representation
 --
 packRGB :: Exp Colour -> Exp Word32
-packRGB (unlift -> RGB r g b) = pack8 (word8OfFloat r) (word8OfFloat g) (word8OfFloat b) 0xFF
+packRGB (unlift -> RGB r g b)
+  = bitcast
+  . lift
+  $ RGBA (word8OfFloat r) (word8OfFloat g) (word8OfFloat b) 0xFF
 
 -- | Convert a colour into a packed-word ABGR representation
 --
 packBGR :: Exp Colour -> Exp Word32
-packBGR (unlift -> RGB r g b) = pack8 0xFF (word8OfFloat b) (word8OfFloat g) (word8OfFloat r)
+packBGR (unlift -> RGB r g b)
+  = bitcast
+  . lift
+  $ RGBA 0xFF (word8OfFloat b) (word8OfFloat g) (word8OfFloat r)
 
 packRGB8 :: Exp (RGB Word8) -> Exp Word32
-packRGB8 (unlift -> RGB r g b) = pack8 r g b 0xFF
+packRGB8 (unlift -> RGB r g b :: RGB (Exp Word8))
+  = bitcast
+  . lift
+  $ RGBA r g b 0xFF
 
 packBGR8 :: Exp (RGB Word8) -> Exp Word32
-packBGR8 (unlift -> RGB r g b) = pack8 0xff b g r
+packBGR8 (unlift -> RGB r g b :: RGB (Exp Word8))
+  = bitcast
+  . lift
+  $ RGBA 0xff b g r
 
 
 -- | Convert a colour from a packed-word RGBA representation
 --
 unpackRGB :: Exp Word32 -> Exp Colour
-unpackRGB w =
-  let (r,g,b::Exp Word8,_::Exp Word8) = unlift (unpack8 w)
-  in  rgb8 r g b
+unpackRGB (unlift . bitcast -> RGBA r g b _ :: RGBA (Exp Word8)) = rgb8 r g b
 
 -- | Convert a colour from a packed-word ABGR representation
 --
 unpackBGR :: Exp Word32 -> Exp Colour
-unpackBGR w =
-  let (_::Exp Word8,b::Exp Word8,g,r) = unlift (unpack8 w)
-  in  rgb8 r g b
+unpackBGR (unlift . bitcast -> RGBA _ b g r :: RGBA (Exp Word8)) = rgb8 r g b
 
 unpackRGB8 :: Exp Word32 -> Exp (RGB Word8)
-unpackRGB8 w =
-  let (r,g,b::Exp Word8,_::Exp Word8) = unlift (unpack8 w)
-  in  lift $ RGB r g b
+unpackRGB8 (unlift . bitcast -> RGBA r g b _ :: RGBA (Exp Word8)) = lift (RGB r g b)
 
 unpackBGR8 :: Exp Word32 -> Exp (RGB Word8)
-unpackBGR8 w =
-  let (_::Exp Word8,b::Exp Word8,g,r) = unlift (unpack8 w)
-  in  lift $ RGB r g b
+unpackBGR8 (unlift . bitcast -> RGBA _ b g r :: RGBA (Exp Word8)) = lift (RGB r g b)
 
 
 -- Accelerate bits
 -- ---------------
 
--- RGB colour space
+-- | An RGB colour value to hold the colour components. All components lie in
+-- the range [0..1] for floating point values, or [0..255] for byte values.
+--
+-- Colours in the floating point representation are stored in the usual unzipped
+-- struct-of-array representation. Colours with Word8 components are stored in
+-- a packed array-of-struct representation, which is typically more convenient
+-- when exporting the data (e.g. as a 24-bit BMP image).
 --
 data RGB a = RGB a a a
   deriving (Show, P.Eq, Functor, Typeable)
 
--- Represent colours in Accelerate as a 3-tuple
---
-type instance EltRepr (RGB a) = EltRepr (a, a, a)
+type instance EltRepr (RGB Float) = EltRepr (Float, Float, Float)
+type instance EltRepr (RGB Word8) = V3 Word8
 
-instance Elt a => Elt (RGB a) where
-  eltType (_ :: RGB a)          = eltType (undefined :: (a,a,a))
-  toElt c                       = let (r,g,b) = toElt c in RGB r g b
-  fromElt (RGB r g b)           = fromElt (r,g,b)
+instance Elt (RGB Float) where
+  eltType _           = eltType (undefined::(Float,Float,Float))
+  toElt t             = let (r,g,b) = toElt t in RGB r g b
+  fromElt (RGB r g b) = fromElt (r,g,b)
 
-instance Elt a => IsProduct Elt (RGB a) where
-  type ProdRepr (RGB a)          = ((((),a), a), a)
-  fromProd _ (RGB r g b)         = ((((), r), g), b)
-  toProd _ ((((),r),g),b)        = RGB r g b
-  prod cst _                     = prod cst (undefined :: (a,a,a))
+instance Elt (RGB Word8) where
+  eltType _           = TypeRscalar scalarType
+  toElt (V3 r g b)    = RGB r g b
+  fromElt (RGB r g b) = V3 r g b
 
-instance (Lift Exp a, Elt (Plain a)) => Lift Exp (RGB a) where
-  type Plain (RGB a)    = RGB (Plain a)
-  lift (RGB r g b)      = Exp . Tuple $ NilTup `SnocTup` lift r `SnocTup` lift g `SnocTup` lift b
+instance IsProduct Elt (RGB Float) where
+  type ProdRepr (RGB Float) = ProdRepr (Float,Float,Float)
+  fromProd cst (RGB r g b)  = fromProd cst (r,g,b)
+  toProd cst p              = let (r,g,b) = toProd cst p in RGB r g b
+  prod cst _                = prod cst (undefined :: (Float,Float,Float))
 
-instance Elt a => Unlift Exp (RGB (Exp a)) where
-  unlift c      = let r = Exp $ SuccTupIdx (SuccTupIdx ZeroTupIdx) `Prj` c
-                      g = Exp $ SuccTupIdx ZeroTupIdx `Prj` c
-                      b = Exp $ ZeroTupIdx `Prj` c
-                  in RGB r g b
+instance IsProduct Elt (RGB Word8) where
+  type ProdRepr (RGB Word8) = ProdRepr (V3 Word8)
+  fromProd cst (RGB r g b)  = fromProd cst (V3 r g b)
+  toProd cst p              = let V3 r g b = toProd cst p in RGB r g b
+  prod cst _                = prod cst (undefined :: V3 Word8)
+
+instance Lift Exp (RGB Float) where
+  type Plain (RGB Float) = RGB Float
+  lift = constant
+
+instance Lift Exp (RGB Word8) where
+  type Plain (RGB Word8) = RGB Word8
+  lift = constant
+
+instance Lift Exp (RGB (Exp Float)) where
+  type Plain (RGB (Exp Float)) = RGB Float
+  lift (RGB r g b)             = Exp . Tuple $ NilTup `SnocTup` r `SnocTup` g `SnocTup` b
+
+instance Lift Exp (RGB (Exp Word8)) where
+  type Plain (RGB (Exp Word8)) = RGB Word8
+  lift (RGB r g b)             = Exp . Tuple $ NilTup `SnocTup` r `SnocTup` g `SnocTup` b
+
+instance Unlift Exp (RGB (Exp Float)) where
+  unlift c =
+    let
+        r = Exp $ SuccTupIdx (SuccTupIdx ZeroTupIdx) `Prj` c
+        g = Exp $ SuccTupIdx ZeroTupIdx `Prj` c
+        b = Exp $ ZeroTupIdx `Prj` c
+    in
+    RGB r g b
+
+instance Unlift Exp (RGB (Exp Word8)) where
+  unlift c =
+    let r = Exp $ SuccTupIdx (SuccTupIdx ZeroTupIdx) `Prj` c
+        g = Exp $ SuccTupIdx ZeroTupIdx `Prj` c
+        b = Exp $ ZeroTupIdx `Prj` c
+    in
+    RGB r g b
+
 
 instance P.Num a => P.Num (RGB a) where
   (+) (RGB r1 g1 b1 ) (RGB r2 g2 b2)
@@ -228,7 +274,7 @@ instance P.Num a => P.Num (RGB a) where
         = RGB (signum r1) (signum g1) (signum b1)
 
   fromInteger i
-        = let f = fromInteger i
+        = let f = P.fromInteger i
           in  RGB f f f
 
 instance (P.Num a, P.Fractional a) => P.Fractional (RGB a) where
@@ -239,23 +285,24 @@ instance (P.Num a, P.Fractional a) => P.Fractional (RGB a) where
         = RGB (recip r1) (recip g1) (recip b1)
 
   fromRational r
-        = let f = fromRational r
+        = let f = P.fromRational r
           in  RGB f f f
 
-
-instance {-# OVERLAPS #-} A.Num a => P.Num (Exp (RGB a)) where
+instance (A.Num a, Unlift Exp (RGB (Exp a)), Plain (RGB (Exp a)) ~ RGB a)
+    => P.Num (Exp (RGB a)) where
   (+)           = lift2 ((+) :: RGB (Exp a) -> RGB (Exp a) -> RGB (Exp a))
   (-)           = lift2 ((-) :: RGB (Exp a) -> RGB (Exp a) -> RGB (Exp a))
   (*)           = lift2 ((*) :: RGB (Exp a) -> RGB (Exp a) -> RGB (Exp a))
   abs           = lift1 (abs :: RGB (Exp a) -> RGB (Exp a))
   signum        = lift1 (signum :: RGB (Exp a) -> RGB (Exp a))
-  fromInteger i = let f = fromInteger i :: Exp a
+  fromInteger i = let f = P.fromInteger i :: Exp a
                   in  lift $ RGB f f f
 
-instance {-# OVERLAPS #-} A.Fractional a => P.Fractional (Exp (RGB a)) where
+instance (A.Fractional a, Unlift Exp (RGB (Exp a)), Plain (RGB (Exp a)) ~ RGB a)
+    => P.Fractional (Exp (RGB a)) where
   (/)            = lift2 ((/) :: RGB (Exp a) -> RGB (Exp a) -> RGB (Exp a))
   recip          = lift1 (recip :: RGB (Exp a) -> RGB (Exp a))
-  fromRational r = let f = fromRational r :: Exp a
+  fromRational r = let f = P.fromRational r :: Exp a
                    in lift $ RGB f f f
 
 

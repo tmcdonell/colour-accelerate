@@ -25,6 +25,8 @@
 -- Colours in the HSL (hue-saturation-lightness) cylindrical-coordinate
 -- representation of points in the RGB colour space.
 --
+-- <https://en.wikipedia.org/wiki/HSL_and_HSV>
+--
 
 module Data.Array.Accelerate.Data.Colour.HSL (
 
@@ -189,7 +191,7 @@ instance P.Num a => P.Num (HSL a) where
         = HSL (signum h1) (signum s1) (signum v1)
 
   fromInteger i
-        = let f = fromInteger i
+        = let f = P.fromInteger i
           in  HSL f f f
 
 instance (P.Num a, P.Fractional a) => P.Fractional (HSL a) where
@@ -200,7 +202,7 @@ instance (P.Num a, P.Fractional a) => P.Fractional (HSL a) where
         = HSL (recip h1) (recip s1) (recip l1)
 
   fromRational r
-        = let f = fromRational r
+        = let f = P.fromRational r
           in  HSL f f f
 
 
@@ -210,13 +212,13 @@ instance {-# OVERLAPS #-} A.Num a => P.Num (Exp (HSL a)) where
   (*)           = lift2 ((*) :: HSL (Exp a) -> HSL (Exp a) -> HSL (Exp a))
   abs           = lift1 (abs :: HSL (Exp a) -> HSL (Exp a))
   signum        = lift1 (signum :: HSL (Exp a) -> HSL (Exp a))
-  fromInteger i = let f = fromInteger i :: Exp a
+  fromInteger i = let f = P.fromInteger i :: Exp a
                   in lift $ HSL f f f
 
 instance {-# OVERLAPS #-} A.Fractional a => P.Fractional (Exp (HSL a)) where
   (/)            = lift2 ((/) :: HSL (Exp a) -> HSL (Exp a) -> HSL (Exp a))
   recip          = lift1 (recip :: HSL (Exp a) -> HSL (Exp a))
-  fromRational r = let f = fromRational r :: Exp a
+  fromRational r = let f = P.fromRational r :: Exp a
                    in lift $ HSL f f f
 
 

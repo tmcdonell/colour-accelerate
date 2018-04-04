@@ -42,18 +42,20 @@ module Data.Array.Accelerate.Data.Colour.RGBA (
 ) where
 
 import Data.Array.Accelerate                                        as A hiding ( clamp )
-import Data.Array.Accelerate.Smart
-import Data.Array.Accelerate.Product                                ( TupleIdx(..), IsProduct(..) )
 import Data.Array.Accelerate.Array.Sugar                            ( Elt(..), EltRepr, Tuple(..) )
+import Data.Array.Accelerate.Product                                ( TupleIdx(..), IsProduct(..) )
+import Data.Array.Accelerate.Smart
+import Data.Array.Accelerate.Type
 
 import Data.Array.Accelerate.Data.Colour.Names
-import Data.Array.Accelerate.Data.Colour.Internal.Pack
+import Data.Array.Accelerate.Data.Colour.Internal.Pack              ( word8OfFloat )
 
 import Data.Typeable
+import GHC.TypeLits                                                 ( ) -- ghc-8.0 bug??
 import Prelude                                                      as P
 
 
--- | An RGBA colour value.
+-- | An RGBA colour value, in an unspecified colour space.
 --
 type Colour = RGBA Float
 
@@ -81,7 +83,7 @@ rgba8
     -> Exp Colour
 rgba8 r g b a
   = lift
-  $ RGBA (A.fromIntegral r / 255)
+  $ RGBA (A.fromIntegral r / 255 :: Exp Float)
          (A.fromIntegral g / 255)
          (A.fromIntegral b / 255)
          (A.fromIntegral a / 255)
@@ -163,85 +165,119 @@ opaque = opacity 1
 -- | Convert a Colour into a packed-word RGBA representation
 --
 packRGBA :: Exp Colour -> Exp Word32
-packRGBA (unlift -> RGBA r g b a) =
-  pack8 (word8OfFloat r) (word8OfFloat g) (word8OfFloat b) (word8OfFloat a)
+packRGBA (unlift -> RGBA r g b a)
+  = bitcast
+  . lift
+  $ RGBA (word8OfFloat r) (word8OfFloat g) (word8OfFloat b) (word8OfFloat a)
 
 -- | Convert a colour into a packed-word ABGR representation
 --
 packABGR :: Exp Colour -> Exp Word32
-packABGR (unlift -> RGBA r g b a) =
-  pack8 (word8OfFloat a) (word8OfFloat b) (word8OfFloat g) (word8OfFloat r)
+packABGR (unlift -> RGBA r g b a)
+  = bitcast
+  . lift
+  $ RGBA (word8OfFloat a) (word8OfFloat b) (word8OfFloat g) (word8OfFloat r)
 
 packRGBA8 :: Exp (RGBA Word8) -> Exp Word32
-packRGBA8 (unlift -> RGBA r g b a) = pack8 r g b a
+packRGBA8 = bitcast
 
 packABGR8 :: Exp (RGBA Word8) -> Exp Word32
-packABGR8 (unlift -> RGBA r g b a) = pack8 a b g r
+packABGR8 (unlift -> RGBA r g b a :: RGBA (Exp Word8))
+  = bitcast
+  $ lift (RGBA a b g r)
 
 
 -- | Convert a colour from a packed-word RGBA representation
 --
 unpackRGBA :: Exp Word32 -> Exp Colour
-unpackRGBA w =
-  let (r,g,b,a::Exp Word8) = unlift (unpack8 w)
-  in  rgba8 r g b a
+unpackRGBA (unlift . bitcast -> RGBA r g b a) = rgba8 r g b a
 
 -- | Convert a colour from a packed-word ABGR representation
 --
 unpackABGR :: Exp Word32 -> Exp Colour
-unpackABGR w =
-  let (a,b,g,r::Exp Word8) = unlift (unpack8 w)
-  in  rgba8 r g b a
+unpackABGR (unlift . bitcast -> RGBA a b g r) = rgba8 r g b a
 
 unpackRGBA8 :: Exp Word32 -> Exp (RGBA Word8)
-unpackRGBA8 w =
-  let (r,g,b,a::Exp Word8) = unlift (unpack8 w)
-  in  lift $ RGBA r g b a
+unpackRGBA8 = bitcast
 
 unpackABGR8 :: Exp Word32 -> Exp (RGBA Word8)
-unpackABGR8 w =
-  let (a,b,g,r::Exp Word8) = unlift (unpack8 w)
-  in  lift $ RGBA r g b a
+unpackABGR8 (unlift . bitcast -> RGBA a b g r :: RGBA (Exp Word8)) =
+  lift (RGBA r g b a)
 
 
 -- Accelerate bits
 -- ---------------
 
 -- | An RGBA colour value to hold the colour components. All components lie in
--- the range [0..1).
+-- the range [0..1] for floating point values, or [0..255] for byte values.
 --
--- We need to parameterise by a type so that we can have both Exp (RGBA a) and
--- RGBA (Exp a).
+-- Colours in the floating-point representation are stored in the usual unzipped
+-- struct-of-array representation. Colours with Word8 components are stored in
+-- a packed array-of-struct representation, which is typically more convenient
+-- when exporting the data (e.g. as a 32-bit BMP image)
 --
 data RGBA a = RGBA a a a a
   deriving (Show, P.Eq, Functor, Typeable)
 
--- Represent colours in Accelerate as a 4-tuple
---
-type instance EltRepr (RGBA a) = EltRepr (a, a, a, a)
+type instance EltRepr (RGBA Float) = EltRepr (Float,Float,Float,Float)
+type instance EltRepr (RGBA Word8) = V4 Word8
 
-instance Elt a => Elt (RGBA a) where
-  eltType (_ :: RGBA a)         = eltType (undefined :: (a,a,a,a))
-  toElt c                       = let (r,g,b,a) = toElt c in RGBA r g b a
-  fromElt (RGBA r g b a)        = fromElt (r,g,b,a)
+instance Elt (RGBA Float) where
+  eltType _              = eltType (undefined::(Float,Float,Float,Float))
+  toElt t                = let (r,g,b,a) = toElt t in RGBA r g b a
+  fromElt (RGBA r g b a) = fromElt (r,g,b,a)
 
-instance Elt a => IsProduct Elt (RGBA a) where
-  type ProdRepr (RGBA a)         = (((((),a), a), a), a)
-  fromProd _ (RGBA r g b a)      = (((((), r), g), b), a)
-  toProd _ (((((),r),g),b),a)    = RGBA r g b a
-  prod cst _                     = prod cst (undefined :: (a,a,a,a))
+instance Elt (RGBA Word8) where
+  eltType _              = TypeRscalar scalarType
+  toElt (V4 r g b a)     = RGBA r g b a
+  fromElt (RGBA r g b a) = V4 r g b a
 
-instance (Lift Exp a, Elt (Plain a)) => Lift Exp (RGBA a) where
-  type Plain (RGBA a)   = RGBA (Plain a)
-  lift (RGBA r g b a)   = Exp . Tuple $ NilTup `SnocTup` lift r `SnocTup` lift g
-                                               `SnocTup` lift b `SnocTup` lift a
+instance IsProduct Elt (RGBA Float) where
+  type ProdRepr (RGBA Float)  = ProdRepr (Float,Float,Float,Float)
+  fromProd cst (RGBA r g b a) = fromProd cst (r,g,b,a)
+  toProd cst p                = let (r,g,b,a) = toProd cst p in RGBA r g b a
+  prod cst _                  = prod cst (undefined :: (Float,Float,Float,Float))
 
-instance Elt a => Unlift Exp (RGBA (Exp a)) where
-  unlift c      = let r = Exp $ SuccTupIdx (SuccTupIdx (SuccTupIdx ZeroTupIdx)) `Prj` c
-                      g = Exp $ SuccTupIdx (SuccTupIdx ZeroTupIdx) `Prj` c
-                      b = Exp $ SuccTupIdx ZeroTupIdx `Prj` c
-                      a = Exp $ ZeroTupIdx `Prj` c
-                  in RGBA r g b a
+instance IsProduct Elt (RGBA Word8) where
+  type ProdRepr (RGBA Word8)  = ProdRepr (V4 Word8)
+  fromProd cst (RGBA r g b a) = fromProd cst (V4 r g b a)
+  toProd cst p                = let V4 r g b a = toProd cst p in RGBA r g b a
+  prod cst _                  = prod cst (undefined :: V4 Word8)
+
+instance Lift Exp (RGBA Float) where
+  type Plain (RGBA Float) = RGBA Float
+  lift = constant
+
+instance Lift Exp (RGBA Word8) where
+  type Plain (RGBA Word8) = RGBA Word8
+  lift = constant
+
+instance Lift Exp (RGBA (Exp Float)) where
+  type Plain (RGBA (Exp Float)) = RGBA Float
+  lift (RGBA r g b a)           = Exp . Tuple $ NilTup `SnocTup` r `SnocTup` g `SnocTup` b `SnocTup` a
+
+instance Lift Exp (RGBA (Exp Word8)) where
+  type Plain (RGBA (Exp Word8)) = RGBA Word8
+  lift (RGBA r g b a)           = Exp . Tuple $ NilTup `SnocTup` r `SnocTup` g `SnocTup` b `SnocTup` a
+
+instance Unlift Exp (RGBA (Exp Float)) where
+  unlift c =
+    let r = Exp $ SuccTupIdx (SuccTupIdx (SuccTupIdx ZeroTupIdx)) `Prj` c
+        g = Exp $ SuccTupIdx (SuccTupIdx ZeroTupIdx) `Prj` c
+        b = Exp $ SuccTupIdx ZeroTupIdx `Prj` c
+        a = Exp $ ZeroTupIdx `Prj` c
+    in
+    RGBA r g b a
+
+instance Unlift Exp (RGBA (Exp Word8)) where
+  unlift c =
+    let r = Exp $ SuccTupIdx (SuccTupIdx (SuccTupIdx ZeroTupIdx)) `Prj` c
+        g = Exp $ SuccTupIdx (SuccTupIdx ZeroTupIdx) `Prj` c
+        b = Exp $ SuccTupIdx ZeroTupIdx `Prj` c
+        a = Exp $ ZeroTupIdx `Prj` c
+    in
+    RGBA r g b a
+
 
 instance P.Num a => P.Num (RGBA a) where
   (+) (RGBA r1 g1 b1 _) (RGBA r2 g2 b2 _)
@@ -260,7 +296,7 @@ instance P.Num a => P.Num (RGBA a) where
         = RGBA (signum r1) (signum g1) (signum b1) 1
 
   fromInteger i
-        = let f = fromInteger i
+        = let f = P.fromInteger i
           in  RGBA f f f 1
 
 instance (P.Num a, P.Fractional a) => P.Fractional (RGBA a) where
@@ -271,24 +307,26 @@ instance (P.Num a, P.Fractional a) => P.Fractional (RGBA a) where
         = RGBA (recip r1) (recip g1) (recip b1) 1
 
   fromRational r
-        = let f = fromRational r
+        = let f = P.fromRational r
           in  RGBA f f f 1
 
-instance {-# OVERLAPS #-} A.Num a => P.Num (Exp (RGBA a)) where
+instance (A.Num a, Unlift Exp (RGBA (Exp a)), Plain (RGBA (Exp a)) ~ RGBA a)
+    => P.Num (Exp (RGBA a)) where
   (+)           = lift2 ((+) :: RGBA (Exp a) -> RGBA (Exp a) -> RGBA (Exp a))
   (-)           = lift2 ((-) :: RGBA (Exp a) -> RGBA (Exp a) -> RGBA (Exp a))
   (*)           = lift2 ((*) :: RGBA (Exp a) -> RGBA (Exp a) -> RGBA (Exp a))
   abs           = lift1 (abs :: RGBA (Exp a) -> RGBA (Exp a))
   signum        = lift1 (signum :: RGBA (Exp a) -> RGBA (Exp a))
-  fromInteger i = let f = fromInteger i
-                      a = fromInteger 1 :: Exp a
+  fromInteger i = let f = P.fromInteger i
+                      a = P.fromInteger 1 :: Exp a
                   in lift $ RGBA f f f a
 
-instance {-# OVERLAPS #-} A.Fractional a => P.Fractional (Exp (RGBA a)) where
+instance (A.Fractional a, Unlift Exp (RGBA (Exp a)), Plain (RGBA (Exp a)) ~ RGBA a)
+    => P.Fractional (Exp (RGBA a)) where
   (/)            = lift2 ((/) :: RGBA (Exp a) -> RGBA (Exp a) -> RGBA (Exp a))
   recip          = lift1 (recip :: RGBA (Exp a) -> RGBA (Exp a))
-  fromRational r = let f = fromRational r
-                       a = fromRational 1 :: Exp a
+  fromRational r = let f = P.fromRational r
+                       a = P.fromRational 1 :: Exp a
                    in lift $ RGBA f f f a
 
 
