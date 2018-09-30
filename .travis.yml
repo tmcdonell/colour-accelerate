@@ -7,11 +7,12 @@
 #
 language: minimal
 dist: trusty
-sudo: true      # more storage available on sudo-enabled instances
+sudo: required  # more storage available on sudo-enabled instances
 
 cache:
   directories:
-    - $HOME/.stack
+    - $HOME/.stack/snapshots
+    - $HOME/.local/bin
     - .stack-work/install
 
 before_cache:
@@ -29,17 +30,14 @@ addons:
 
 matrix:
   include:
-    - env: GHC=8.0.2 CABAL=1.24
+    - env: GHC=8.0.2
       compiler: "GHC 8.0"
-      addons: { apt: { sources: [ *apt_sources ], packages: [ *apt_packages, cabal-install-1.24 ] }}
 
-    - env: GHC=8.2.2 CABAL=2.0
+    - env: GHC=8.2.2
       compiler: "GHC 8.2"
-      addons: { apt: { sources: [ *apt_sources ], packages: [ *apt_packages, cabal-install-2.0 ] }}
 
-    - env: GHC=8.4.1 CABAL=2.0
+    - env: GHC=8.4.1
       compiler: "GHC 8.4"
-      addons: { apt: { sources: [ *apt_sources ], packages: [ *apt_packages, cabal-install-2.0 ] }}
 
     # - env: GHC=head CABAL=head
     #   compiler: "GHC HEAD"
@@ -51,12 +49,11 @@ matrix:
   fast_finish: true
 
 before_install:
-  - export PATH=/opt/cabal/$CABAL/bin:/opt/alex/3.1.7/bin:/opt/happy/1.19.5/bin:$HOME/.cabal/bin:$PATH
+  - export PATH=/opt/alex/3.1.7/bin:/opt/happy/1.19.5/bin:$PATH
   - source .travis/install-stack.sh
 
 install:
   - echo "$(stack exec ghc -- --version) [$(stack exec ghc -- --print-project-git-commit-id 2> /dev/null || echo '?')]"
-  - cabal --version
   - stack --version
   - travis_retry travis_wait 60 stack build --only-dependencies --fast --no-terminal --no-haddock-deps --no-copy-bins
 
