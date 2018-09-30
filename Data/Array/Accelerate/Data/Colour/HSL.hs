@@ -1,7 +1,9 @@
 {-# LANGUAGE CPP                   #-}
 {-# LANGUAGE ConstraintKinds       #-}
+{-# LANGUAGE DeriveAnyClass        #-}
 {-# LANGUAGE DeriveDataTypeable    #-}
 {-# LANGUAGE DeriveFunctor         #-}
+{-# LANGUAGE DeriveGeneric         #-}
 {-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -45,7 +47,7 @@ module Data.Array.Accelerate.Data.Colour.HSL (
 import Data.Array.Accelerate                                        as A hiding ( clamp )
 import Data.Array.Accelerate.Smart
 import Data.Array.Accelerate.Product                                ( TupleIdx(..), IsProduct(..) )
-import Data.Array.Accelerate.Array.Sugar                            ( Elt(..), EltRepr, Tuple(..) )
+import Data.Array.Accelerate.Array.Sugar                            ( Elt(..), Tuple(..) )
 
 import Data.Array.Accelerate.Data.Colour.RGB                        ( RGB(..) )
 import Data.Array.Accelerate.Data.Colour.Names                      as C
@@ -147,22 +149,7 @@ lightness (unlift . fromRGB -> HSL _ _ l) = l
 -- HSL colour space
 --
 data HSL a = HSL a a a
-  deriving (P.Show, P.Eq, Functor, Typeable)
-
--- Represent colours in Accelerate as a 3-tuple
---
-type instance EltRepr (HSL a) = EltRepr (a, a, a)
-
-instance Elt a => Elt (HSL a) where
-  eltType (_ :: HSL a)          = eltType (undefined :: (a,a,a))
-  toElt c                       = let (h,s,l) = toElt c in HSL h s l
-  fromElt (HSL h s l)           = fromElt (h,s,l)
-
-instance Elt a => IsProduct Elt (HSL a) where
-  type ProdRepr (HSL a)          = ((((),a), a), a)
-  fromProd _ (HSL h s l)         = ((((), h), s), l)
-  toProd _ ((((),h),s),l)        = HSL h s l
-  prod cst _                     = prod cst (undefined :: (a,a,a))
+  deriving (P.Show, P.Eq, Functor, Typeable, Generic, Elt, IsProduct Elt)
 
 instance (Lift Exp a, Elt (Plain a)) => Lift Exp (HSL a) where
   type Plain (HSL a)    = HSL (Plain a)

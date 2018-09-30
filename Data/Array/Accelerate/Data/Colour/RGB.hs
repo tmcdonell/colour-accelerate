@@ -1,11 +1,14 @@
 {-# LANGUAGE CPP                   #-}
 {-# LANGUAGE ConstraintKinds       #-}
+{-# LANGUAGE DeriveAnyClass        #-}
 {-# LANGUAGE DeriveDataTypeable    #-}
 {-# LANGUAGE DeriveFunctor         #-}
+{-# LANGUAGE DeriveGeneric         #-}
 {-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE ScopedTypeVariables   #-}
+{-# LANGUAGE TypeApplications      #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE UndecidableInstances  #-}
 {-# LANGUAGE ViewPatterns          #-}
@@ -196,32 +199,19 @@ unpackBGR8 (unlift . bitcast -> RGBA _ b g r :: RGBA (Exp Word8)) = lift (RGB r 
 -- when exporting the data (e.g. as a 24-bit BMP image).
 --
 data RGB a = RGB a a a
-  deriving (Show, P.Eq, Functor, Typeable)
-
-type instance EltRepr (RGB Float) = EltRepr (Float, Float, Float)
-type instance EltRepr (RGB Word8) = V3 Word8
+  deriving (Show, P.Eq, Functor, Typeable, Generic, IsProduct Elt)
 
 instance Elt (RGB Float) where
-  eltType _           = eltType (undefined::(Float,Float,Float))
+  type EltRepr (RGB Float) = EltRepr (Float, Float, Float)
+  eltType             = eltType @(Float,Float,Float)
   toElt t             = let (r,g,b) = toElt t in RGB r g b
   fromElt (RGB r g b) = fromElt (r,g,b)
 
 instance Elt (RGB Word8) where
-  eltType _           = TypeRscalar scalarType
+  type EltRepr (RGB Word8) = V3 Word8
+  eltType             = TypeRscalar scalarType
   toElt (V3 r g b)    = RGB r g b
   fromElt (RGB r g b) = V3 r g b
-
-instance IsProduct Elt (RGB Float) where
-  type ProdRepr (RGB Float) = ProdRepr (Float,Float,Float)
-  fromProd cst (RGB r g b)  = fromProd cst (r,g,b)
-  toProd cst p              = let (r,g,b) = toProd cst p in RGB r g b
-  prod cst _                = prod cst (undefined :: (Float,Float,Float))
-
-instance IsProduct Elt (RGB Word8) where
-  type ProdRepr (RGB Word8) = ProdRepr (V3 Word8)
-  fromProd cst (RGB r g b)  = fromProd cst (V3 r g b)
-  toProd cst p              = let V3 r g b = toProd cst p in RGB r g b
-  prod cst _                = prod cst (undefined :: V3 Word8)
 
 instance Lift Exp (RGB Float) where
   type Plain (RGB Float) = RGB Float

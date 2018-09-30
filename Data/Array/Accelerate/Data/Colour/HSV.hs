@@ -1,11 +1,14 @@
 {-# LANGUAGE CPP                   #-}
 {-# LANGUAGE ConstraintKinds       #-}
+{-# LANGUAGE DeriveAnyClass        #-}
 {-# LANGUAGE DeriveDataTypeable    #-}
 {-# LANGUAGE DeriveFunctor         #-}
+{-# LANGUAGE DeriveGeneric         #-}
 {-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE ScopedTypeVariables   #-}
+{-# LANGUAGE TypeApplications      #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE UndecidableInstances  #-}
 {-# LANGUAGE ViewPatterns          #-}
@@ -45,7 +48,7 @@ module Data.Array.Accelerate.Data.Colour.HSV (
 import Data.Array.Accelerate                                        as A hiding ( clamp )
 import Data.Array.Accelerate.Smart
 import Data.Array.Accelerate.Product                                ( TupleIdx(..), IsProduct(..) )
-import Data.Array.Accelerate.Array.Sugar                            ( Elt(..), EltRepr, Tuple(..) )
+import Data.Array.Accelerate.Array.Sugar                            ( Elt(..), Tuple(..) )
 
 import Data.Array.Accelerate.Data.Colour.RGB                        ( RGB(..) )
 import Data.Array.Accelerate.Data.Colour.Names                      as C
@@ -147,22 +150,7 @@ value (unlift . fromRGB -> HSV _ _ v) = v
 -- HSV colour space
 --
 data HSV a = HSV a a a
-  deriving (P.Show, P.Eq, Functor, Typeable)
-
--- Represent colours in Accelerate as a 3-tuple
---
-type instance EltRepr (HSV a) = EltRepr (a, a, a)
-
-instance Elt a => Elt (HSV a) where
-  eltType (_ :: HSV a)          = eltType (undefined :: (a,a,a))
-  toElt c                       = let (h,s,v) = toElt c in HSV h s v
-  fromElt (HSV h s v)           = fromElt (h,s,v)
-
-instance Elt a => IsProduct Elt (HSV a) where
-  type ProdRepr (HSV a)          = ((((),a), a), a)
-  fromProd _ (HSV h s v)         = ((((), h), s), v)
-  toProd _ ((((),h),s),v)        = HSV h s v
-  prod cst _                     = prod cst (undefined :: (a,a,a))
+  deriving (P.Show, P.Eq, Functor, Typeable, Generic, Elt, IsProduct Elt)
 
 instance (Lift Exp a, Elt (Plain a)) => Lift Exp (HSV a) where
   type Plain (HSV a)    = HSV (Plain a)

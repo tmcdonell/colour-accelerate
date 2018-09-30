@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveAnyClass        #-}
+{-# LANGUAGE DeriveGeneric         #-}
 {-# LANGUAGE CPP                   #-}
 {-# LANGUAGE ConstraintKinds       #-}
 {-# LANGUAGE DeriveDataTypeable    #-}
@@ -6,6 +8,7 @@
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE ScopedTypeVariables   #-}
+{-# LANGUAGE TypeApplications      #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE UndecidableInstances  #-}
 {-# LANGUAGE ViewPatterns          #-}
@@ -217,32 +220,19 @@ unpackABGR8 (unlift . bitcast -> RGBA a b g r :: RGBA (Exp Word8)) =
 -- when exporting the data (e.g. as a 32-bit BMP image)
 --
 data RGBA a = RGBA a a a a
-  deriving (Show, P.Eq, Functor, Typeable)
-
-type instance EltRepr (RGBA Float) = EltRepr (Float,Float,Float,Float)
-type instance EltRepr (RGBA Word8) = V4 Word8
+  deriving (Show, P.Eq, Functor, Typeable, Generic, IsProduct Elt)
 
 instance Elt (RGBA Float) where
-  eltType _              = eltType (undefined::(Float,Float,Float,Float))
+  type EltRepr (RGBA Float) = EltRepr (Float,Float,Float,Float)
+  eltType                = eltType @(Float,Float,Float,Float)
   toElt t                = let (r,g,b,a) = toElt t in RGBA r g b a
   fromElt (RGBA r g b a) = fromElt (r,g,b,a)
 
 instance Elt (RGBA Word8) where
-  eltType _              = TypeRscalar scalarType
+  type EltRepr (RGBA Word8) = V4 Word8
+  eltType                = TypeRscalar scalarType
   toElt (V4 r g b a)     = RGBA r g b a
   fromElt (RGBA r g b a) = V4 r g b a
-
-instance IsProduct Elt (RGBA Float) where
-  type ProdRepr (RGBA Float)  = ProdRepr (Float,Float,Float,Float)
-  fromProd cst (RGBA r g b a) = fromProd cst (r,g,b,a)
-  toProd cst p                = let (r,g,b,a) = toProd cst p in RGBA r g b a
-  prod cst _                  = prod cst (undefined :: (Float,Float,Float,Float))
-
-instance IsProduct Elt (RGBA Word8) where
-  type ProdRepr (RGBA Word8)  = ProdRepr (V4 Word8)
-  fromProd cst (RGBA r g b a) = fromProd cst (V4 r g b a)
-  toProd cst p                = let V4 r g b a = toProd cst p in RGBA r g b a
-  prod cst _                  = prod cst (undefined :: V4 Word8)
 
 instance Lift Exp (RGBA Float) where
   type Plain (RGBA Float) = RGBA Float
