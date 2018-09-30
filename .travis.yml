@@ -30,14 +30,17 @@ addons:
 
 matrix:
   include:
-    - env: GHC=8.0.2
-      compiler: "GHC 8.0"
+    - env: GHC=8.6.1
+      compiler: "GHC 8.6"
+
+    - env: GHC=8.4.2
+      compiler: "GHC 8.4"
 
     - env: GHC=8.2.2
       compiler: "GHC 8.2"
 
-    - env: GHC=8.4.1
-      compiler: "GHC 8.4"
+    - env: GHC=8.0.2
+      compiler: "GHC 8.0"
 
     # - env: GHC=head CABAL=head
     #   compiler: "GHC HEAD"
