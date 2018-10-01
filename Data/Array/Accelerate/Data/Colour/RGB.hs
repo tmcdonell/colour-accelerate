@@ -199,7 +199,7 @@ unpackBGR8 (unlift . bitcast -> RGBA _ b g r :: RGBA (Exp Word8)) = lift (RGB r 
 -- when exporting the data (e.g. as a 24-bit BMP image).
 --
 data RGB a = RGB a a a
-  deriving (Show, P.Eq, Functor, Typeable, Generic, IsProduct Elt)
+  deriving (Show, P.Eq, Functor, Typeable, Generic)
 
 instance Elt (RGB Float) where
   type EltRepr (RGB Float) = EltRepr (Float, Float, Float)
@@ -212,6 +212,8 @@ instance Elt (RGB Word8) where
   eltType             = TypeRscalar scalarType
   toElt (V3 r g b)    = RGB r g b
   fromElt (RGB r g b) = V3 r g b
+
+instance Elt a => IsProduct Elt (RGB a)
 
 instance Lift Exp (RGB Float) where
   type Plain (RGB Float) = RGB Float

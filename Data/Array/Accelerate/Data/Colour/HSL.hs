@@ -149,7 +149,10 @@ lightness (unlift . fromRGB -> HSL _ _ l) = l
 -- HSL colour space
 --
 data HSL a = HSL a a a
-  deriving (P.Show, P.Eq, Functor, Typeable, Generic, Elt, IsProduct Elt)
+  deriving (P.Show, P.Eq, Functor, Typeable, Generic)
+
+instance Elt a => Elt (HSL a)
+instance Elt a => IsProduct Elt (HSL a)
 
 instance (Lift Exp a, Elt (Plain a)) => Lift Exp (HSL a) where
   type Plain (HSL a)    = HSL (Plain a)

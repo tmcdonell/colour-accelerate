@@ -150,7 +150,10 @@ value (unlift . fromRGB -> HSV _ _ v) = v
 -- HSV colour space
 --
 data HSV a = HSV a a a
-  deriving (P.Show, P.Eq, Functor, Typeable, Generic, Elt, IsProduct Elt)
+  deriving (P.Show, P.Eq, Functor, Typeable, Generic)
+
+instance Elt a => Elt (HSV a)
+instance Elt a => IsProduct Elt (HSV a)
 
 instance (Lift Exp a, Elt (Plain a)) => Lift Exp (HSV a) where
   type Plain (HSV a)    = HSV (Plain a)
