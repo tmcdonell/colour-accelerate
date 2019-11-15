@@ -17,10 +17,10 @@
 #endif
 -- |
 -- Module      : Data.Array.Accelerate.Data.Colour.HSL
--- Copyright   : [2016] Trevor L. McDonell
+-- Copyright   : [2016..2019] Trevor L. McDonell
 -- License     : BSD3
 --
--- Maintainer  : Trevor L. McDonell <tmcdonell@cse.unsw.edu.au>
+-- Maintainer  : Trevor L. McDonell <trevor.mcdonell@gmail.com>
 -- Stability   : experimental
 -- Portability : non-portable (GHC extensions)
 --
