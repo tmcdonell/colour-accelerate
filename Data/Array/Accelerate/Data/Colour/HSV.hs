@@ -7,6 +7,7 @@
 {-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE PatternSynonyms       #-}
 {-# LANGUAGE ScopedTypeVariables   #-}
 {-# LANGUAGE TypeApplications      #-}
 {-# LANGUAGE TypeFamilies          #-}
@@ -35,6 +36,7 @@ module Data.Array.Accelerate.Data.Colour.HSV (
 
   Colour,
   HSV(..),
+  pattern HSV_,
 
   hsv,
   clamp,
@@ -51,7 +53,7 @@ import Data.Array.Accelerate.Product                                ( TupleIdx(.
 import Data.Array.Accelerate.Smart
 import Data.Array.Accelerate.Type
 
-import Data.Array.Accelerate.Data.Colour.RGB                        ( RGB(..) )
+import Data.Array.Accelerate.Data.Colour.RGB                        ( RGB(..), pattern RGB_ )
 import Data.Array.Accelerate.Data.Colour.Names                      as C
 
 import Data.Functor
@@ -74,13 +76,12 @@ hsv :: Exp Float        -- ^ hue component
     -> Exp Colour
 hsv h s v
   = clamp
-  $ lift (HSV h s v)
+  $ HSV_ h s v
 
 
 clamp :: Exp Colour -> Exp Colour
-clamp (unlift -> HSV h s v)
-  = lift
-  $ HSV (fmod h 360) (c s) (c v)
+clamp (HSV_ h s v)
+  = HSV_ (fmod h 360) (c s) (c v)
   where
     c x = 0 `max` x `min` 1
 
@@ -92,7 +93,7 @@ fmod n d = n - f * d
 -- | Convert a HSV colour to an RGB colour-space value
 --
 toRGB :: Exp (HSV Float) -> Exp (RGB Float)
-toRGB (unlift -> HSV h s v) = rgb
+toRGB (HSV_ h s v) = rgb
   where
     c   = v * s
     h'  = h / 60
@@ -102,18 +103,18 @@ toRGB (unlift -> HSV h s v) = rgb
     c'  = c + m
     x'  = x + m
     --
-    rgb = h' < 1 ? ( lift (RGB c' x' m)
-        , h' < 2 ? ( lift (RGB x' c' m)
-        , h' < 3 ? ( lift (RGB m  c' x')
-        , h' < 4 ? ( lift (RGB m  x' c')
-        , h' < 5 ? ( lift (RGB x' m  c')
-        ,          ( lift (RGB c' m  x') ))))))
+    rgb = h' < 1 ? ( RGB_ c' x' m
+        , h' < 2 ? ( RGB_ x' c' m
+        , h' < 3 ? ( RGB_ m  c' x'
+        , h' < 4 ? ( RGB_ m  x' c'
+        , h' < 5 ? ( RGB_ x' m  c'
+        ,          ( RGB_ c' m  x' ))))))
 
 
 -- | Convert a point in the RGB colour-space to a point in the HSV colour-space.
 --
 fromRGB :: Exp (RGB Float) -> Exp (HSV Float)
-fromRGB (unlift -> RGB r g b) = lift (HSV h s v)
+fromRGB (RGB_ r g b) = HSV_ h s v
   where
     mx = P.maximum [r,g,b]
     mn = P.minimum [r,g,b]
@@ -132,17 +133,23 @@ fromRGB (unlift -> RGB r g b) = lift (HSV h s v)
 -- | Return the HSV-hue of an RGB colour
 --
 hue :: Exp (RGB Float) -> Exp Float
-hue (unlift . fromRGB -> HSV h _ _) = h
+hue c =
+  let HSV_ h _ _ = fromRGB c
+   in h
 
 -- | Return the HSV-saturation of an RGB colour
 --
 saturation :: Exp (RGB Float) -> Exp Float
-saturation (unlift . fromRGB -> HSV _ s _) = s
+saturation c =
+  let HSV_ _ s _ = fromRGB c
+   in s
 
 -- | Return the HSV-value of an RGB colour
 --
 value :: Exp (RGB Float) -> Exp Float
-value (unlift . fromRGB -> HSV _ _ v) = v
+value c =
+  let HSV_ _ _ v = fromRGB c
+   in v
 
 
 -- Accelerate bits
@@ -152,6 +159,10 @@ value (unlift . fromRGB -> HSV _ _ v) = v
 --
 data HSV a = HSV a a a
   deriving (P.Show, P.Eq, Functor, Typeable, Generic)
+
+pattern HSV_ :: (Elt (HSV a), Elt a) => Exp a -> Exp a -> Exp a -> Exp (HSV a)
+pattern HSV_ h s v = Pattern (h, s, v)
+{-# COMPLETE HSV_ #-}
 
 instance Elt (HSV Float) where
   type EltRepr (HSV Float) = V3 Float

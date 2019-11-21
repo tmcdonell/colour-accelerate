@@ -1,5 +1,6 @@
 {-# LANGUAGE FlexibleContexts    #-}
 {-# LANGUAGE NoImplicitPrelude   #-}
+{-# LANGUAGE PatternSynonyms     #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE ViewPatterns        #-}
 -- |
@@ -24,7 +25,7 @@ module Data.Array.Accelerate.Data.Colour.SRGB (
 ) where
 
 import Data.Array.Accelerate                                        as A hiding ( clamp )
-import Data.Array.Accelerate.Data.Colour.RGB                        ( RGB(..) )
+import Data.Array.Accelerate.Data.Colour.RGB                        ( RGB(..), pattern RGB_ )
 
 import Data.Functor                                                 ( fmap )
 
@@ -46,7 +47,7 @@ srgb :: Exp Float       -- ^ red component
      -> Exp Colour
 srgb r g b
   = clamp
-  $ lift (RGB r g b)
+  $ RGB_ r g b
 
 
 -- | Construct an sRGB colour from 8-bit-per-channel colour components.
@@ -56,10 +57,9 @@ srgb8 :: Exp Word8      -- ^ red component
       -> Exp Word8      -- ^ blue component
       -> Exp Colour
 srgb8 r g b
-  = lift
-  $ RGB (fromIntegral r / 255 :: Exp Float)
-        (fromIntegral g / 255)
-        (fromIntegral b / 255)
+  = RGB_ (fromIntegral r / 255 :: Exp Float)
+         (fromIntegral g / 255)
+         (fromIntegral b / 255)
 
 
 -- | Clamp each component of a colour to the range [0..1].
@@ -74,21 +74,19 @@ clamp = lift1 (fmap c :: SRGB (Exp Float) -> SRGB (Exp Float))
 -- colour space.
 --
 fromRGB :: Exp (RGB Float) -> Exp (SRGB Float)
-fromRGB (unlift -> RGB r g b)
-  = lift
-  $ RGB (invTransferFunction r)
-        (invTransferFunction g)
-        (invTransferFunction b)
+fromRGB (RGB_ r g b)
+  = RGB_ (invTransferFunction r)
+         (invTransferFunction g)
+         (invTransferFunction b)
 
 -- | Convert a colour in the linear sRGB colour space into the non-linear RGB
 -- colour space.
 --
 toRGB :: Exp (SRGB Float) -> Exp (RGB Float)
-toRGB (unlift -> RGB r g b)
-  = lift
-  $ RGB (transferFunction r)
-        (transferFunction g)
-        (transferFunction b)
+toRGB (RGB_ r g b)
+  = RGB_ (transferFunction r)
+         (transferFunction g)
+         (transferFunction b)
 
 
 -- The non-linear sRGB transfer function approximates a gamma of about 2.2.

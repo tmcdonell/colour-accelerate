@@ -7,6 +7,7 @@
 {-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE PatternSynonyms       #-}
 {-# LANGUAGE ScopedTypeVariables   #-}
 {-# LANGUAGE TypeApplications      #-}
 {-# LANGUAGE TypeFamilies          #-}
@@ -32,6 +33,7 @@ module Data.Array.Accelerate.Data.Colour.RGBA (
 
   Colour,
   RGBA(..),
+  pattern RGBA_,
 
   rgba, rgba8,
   clamp,
@@ -73,7 +75,7 @@ rgba :: Exp Float     -- ^ red component
      -> Exp Colour
 rgba r g b a
   = clamp
-  $ lift (RGBA r g b a)
+  $ RGBA_ r g b a
 
 
 -- | Construct a colour from 8-bits-per-channel colour components.
@@ -85,11 +87,10 @@ rgba8
     -> Exp Word8      -- ^ alpha component
     -> Exp Colour
 rgba8 r g b a
-  = lift
-  $ RGBA (A.fromIntegral r / 255 :: Exp Float)
-         (A.fromIntegral g / 255)
-         (A.fromIntegral b / 255)
-         (A.fromIntegral a / 255)
+  = RGBA_ (A.fromIntegral r / 255 :: Exp Float)
+          (A.fromIntegral g / 255)
+          (A.fromIntegral b / 255)
+          (A.fromIntegral a / 255)
 
 
 -- | Clamp each component to the range [0..1]
@@ -117,11 +118,8 @@ blend :: Exp Float      -- ^ Proportion of first colour
       -> Exp Colour     -- ^ First colour
       -> Exp Colour     -- ^ Second colour
       -> Exp Colour     -- ^ Resulting colour
-blend m1 m2 c1 c2 =
+blend m1 m2 (RGBA_ r1 g1 b1 a1) (RGBA_ r2 g2 b2 a2) =
   let
-      RGBA r1 g1 b1 a1  = unlift c1
-      RGBA r2 g2 b2 a2  = unlift c2
-
       -- Normalise mixing proportions to ratios.
       m12 = m1 + m2
       m1' = m1 / m12
@@ -142,14 +140,14 @@ blend m1 m2 c1 c2 =
 -- | Luminance of an RGB colour (Y component of a YUV colour).
 --
 luminance :: Exp Colour -> Exp Float
-luminance (unlift -> RGBA r g b _) = 0.299*r + 0.587*g + 0.114*b
+luminance (RGBA_ r g b _) = 0.299*r + 0.587*g + 0.114*b
 
 
 -- | Set the opacity of the given colour. The opacity is clamped to the range
 -- [0..1].
 --
 opacity :: Exp Float -> Exp Colour -> Exp Colour
-opacity a (unlift -> RGBA r g b _) = lift $ RGBA r g b (0 `A.max` a `A.min` 1)
+opacity a (RGBA_ r g b _) = RGBA_ r g b (0 `A.max` a `A.min` 1)
 
 -- | Make colour transparent
 --
@@ -168,44 +166,47 @@ opaque = opacity 1
 -- | Convert a Colour into a packed-word RGBA representation
 --
 packRGBA :: Exp Colour -> Exp Word32
-packRGBA (unlift -> RGBA r g b a)
+packRGBA (RGBA_ r g b a)
   = bitcast
-  . lift
-  $ RGBA (word8OfFloat r) (word8OfFloat g) (word8OfFloat b) (word8OfFloat a)
+  $ RGBA_ (word8OfFloat r) (word8OfFloat g) (word8OfFloat b) (word8OfFloat a)
 
 -- | Convert a colour into a packed-word ABGR representation
 --
 packABGR :: Exp Colour -> Exp Word32
-packABGR (unlift -> RGBA r g b a)
+packABGR (RGBA_ r g b a)
   = bitcast
-  . lift
-  $ RGBA (word8OfFloat a) (word8OfFloat b) (word8OfFloat g) (word8OfFloat r)
+  $ RGBA_ (word8OfFloat a) (word8OfFloat b) (word8OfFloat g) (word8OfFloat r)
 
 packRGBA8 :: Exp (RGBA Word8) -> Exp Word32
 packRGBA8 = bitcast
 
 packABGR8 :: Exp (RGBA Word8) -> Exp Word32
-packABGR8 (unlift -> RGBA r g b a :: RGBA (Exp Word8))
+packABGR8 (RGBA_ r g b a)
   = bitcast
-  $ lift (RGBA a b g r)
+  $ RGBA_ a b g r
 
 
 -- | Convert a colour from a packed-word RGBA representation
 --
 unpackRGBA :: Exp Word32 -> Exp Colour
-unpackRGBA (unlift . bitcast -> RGBA r g b a) = rgba8 r g b a
+unpackRGBA w =
+  let RGBA_ r g b a = bitcast w
+   in rgba8 r g b a
 
 -- | Convert a colour from a packed-word ABGR representation
 --
 unpackABGR :: Exp Word32 -> Exp Colour
-unpackABGR (unlift . bitcast -> RGBA a b g r) = rgba8 r g b a
+unpackABGR w =
+  let RGBA_ a b g r = bitcast w
+   in rgba8 r g b a
 
 unpackRGBA8 :: Exp Word32 -> Exp (RGBA Word8)
 unpackRGBA8 = bitcast
 
 unpackABGR8 :: Exp Word32 -> Exp (RGBA Word8)
-unpackABGR8 (unlift . bitcast -> RGBA a b g r :: RGBA (Exp Word8)) =
-  lift (RGBA r g b a)
+unpackABGR8 w =
+  let RGBA_ a b g r = bitcast w
+   in RGBA_ r g b a
 
 
 -- Accelerate bits
@@ -221,6 +222,10 @@ unpackABGR8 (unlift . bitcast -> RGBA a b g r :: RGBA (Exp Word8)) =
 --
 data RGBA a = RGBA a a a a
   deriving (Show, P.Eq, Functor, Typeable, Generic)
+
+pattern RGBA_ :: (Elt (RGBA a), Elt a) => Exp a -> Exp a -> Exp a -> Exp a -> Exp (RGBA a)
+pattern RGBA_ r g b a = Pattern (r, g, b, a)
+{-# COMPLETE RGBA_ #-}
 
 instance Elt (RGBA Float) where
   type EltRepr (RGBA Float) = V4 Float

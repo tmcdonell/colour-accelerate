@@ -7,6 +7,7 @@
 {-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE PatternSynonyms       #-}
 {-# LANGUAGE ScopedTypeVariables   #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE UndecidableInstances  #-}
@@ -34,6 +35,7 @@ module Data.Array.Accelerate.Data.Colour.HSL (
 
   Colour,
   HSL(..),
+  pattern HSL_,
 
   hsl,
   clamp,
@@ -151,6 +153,10 @@ lightness (unlift . fromRGB -> HSL _ _ l) = l
 --
 data HSL a = HSL a a a
   deriving (P.Show, P.Eq, Functor, Typeable, Generic)
+
+pattern HSL_ :: (Elt (HSL a), Elt a) => Exp a -> Exp a -> Exp a -> Exp (HSL a)
+pattern HSL_ h s l = Pattern (h, s, l)
+{-# COMPLETE HSL_ #-}
 
 instance Elt (HSL Float) where
   type EltRepr (HSL Float) = V3 Float
