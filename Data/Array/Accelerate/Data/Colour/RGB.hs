@@ -202,10 +202,10 @@ data RGB a = RGB a a a
   deriving (Show, P.Eq, Functor, Typeable, Generic)
 
 instance Elt (RGB Float) where
-  type EltRepr (RGB Float) = EltRepr (Float, Float, Float)
-  eltType             = eltType @(Float,Float,Float)
-  toElt t             = let (r,g,b) = toElt t in RGB r g b
-  fromElt (RGB r g b) = fromElt (r,g,b)
+  type EltRepr (RGB Float) = V3 Float
+  eltType             = TypeRscalar scalarType
+  toElt (V3 r g b)    = RGB r g b
+  fromElt (RGB r g b) = V3 r g b
 
 instance Elt (RGB Word8) where
   type EltRepr (RGB Word8) = V3 Word8
@@ -267,7 +267,7 @@ instance P.Num a => P.Num (RGB a) where
 
   fromInteger i
         = let f = P.fromInteger i
-          in  RGB f f f
+           in RGB f f f
 
 instance (P.Num a, P.Fractional a) => P.Fractional (RGB a) where
   (/) (RGB r1 g1 b1) (RGB r2 g2 b2)
@@ -278,7 +278,7 @@ instance (P.Num a, P.Fractional a) => P.Fractional (RGB a) where
 
   fromRational r
         = let f = P.fromRational r
-          in  RGB f f f
+           in RGB f f f
 
 instance (A.Num a, Unlift Exp (RGB (Exp a)), Plain (RGB (Exp a)) ~ RGB a)
     => P.Num (Exp (RGB a)) where
@@ -288,14 +288,14 @@ instance (A.Num a, Unlift Exp (RGB (Exp a)), Plain (RGB (Exp a)) ~ RGB a)
   abs           = lift1 (abs :: RGB (Exp a) -> RGB (Exp a))
   signum        = lift1 (signum :: RGB (Exp a) -> RGB (Exp a))
   fromInteger i = let f = P.fromInteger i :: Exp a
-                  in  lift $ RGB f f f
+                   in lift $ RGB f f f
 
 instance (A.Fractional a, Unlift Exp (RGB (Exp a)), Plain (RGB (Exp a)) ~ RGB a)
     => P.Fractional (Exp (RGB a)) where
   (/)            = lift2 ((/) :: RGB (Exp a) -> RGB (Exp a) -> RGB (Exp a))
   recip          = lift1 (recip :: RGB (Exp a) -> RGB (Exp a))
   fromRational r = let f = P.fromRational r :: Exp a
-                   in lift $ RGB f f f
+                    in lift $ RGB f f f
 
 
 -- Named colours

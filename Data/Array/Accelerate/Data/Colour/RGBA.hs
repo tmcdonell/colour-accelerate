@@ -1,9 +1,9 @@
-{-# LANGUAGE DeriveAnyClass        #-}
-{-# LANGUAGE DeriveGeneric         #-}
 {-# LANGUAGE CPP                   #-}
 {-# LANGUAGE ConstraintKinds       #-}
+{-# LANGUAGE DeriveAnyClass        #-}
 {-# LANGUAGE DeriveDataTypeable    #-}
 {-# LANGUAGE DeriveFunctor         #-}
+{-# LANGUAGE DeriveGeneric         #-}
 {-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -223,10 +223,10 @@ data RGBA a = RGBA a a a a
   deriving (Show, P.Eq, Functor, Typeable, Generic)
 
 instance Elt (RGBA Float) where
-  type EltRepr (RGBA Float) = EltRepr (Float,Float,Float,Float)
-  eltType                = eltType @(Float,Float,Float,Float)
-  toElt t                = let (r,g,b,a) = toElt t in RGBA r g b a
-  fromElt (RGBA r g b a) = fromElt (r,g,b,a)
+  type EltRepr (RGBA Float) = V4 Float
+  eltType                = TypeRscalar scalarType
+  toElt (V4 r g b a)     = RGBA r g b a
+  fromElt (RGBA r g b a) = V4 r g b a
 
 instance Elt (RGBA Word8) where
   type EltRepr (RGBA Word8) = V4 Word8
@@ -289,7 +289,7 @@ instance P.Num a => P.Num (RGBA a) where
 
   fromInteger i
         = let f = P.fromInteger i
-          in  RGBA f f f 1
+           in RGBA f f f 1
 
 instance (P.Num a, P.Fractional a) => P.Fractional (RGBA a) where
   (/) (RGBA r1 g1 b1 _) (RGBA r2 g2 b2 _)
@@ -300,7 +300,7 @@ instance (P.Num a, P.Fractional a) => P.Fractional (RGBA a) where
 
   fromRational r
         = let f = P.fromRational r
-          in  RGBA f f f 1
+           in RGBA f f f 1
 
 instance (A.Num a, Unlift Exp (RGBA (Exp a)), Plain (RGBA (Exp a)) ~ RGBA a)
     => P.Num (Exp (RGBA a)) where
@@ -311,7 +311,7 @@ instance (A.Num a, Unlift Exp (RGBA (Exp a)), Plain (RGBA (Exp a)) ~ RGBA a)
   signum        = lift1 (signum :: RGBA (Exp a) -> RGBA (Exp a))
   fromInteger i = let f = P.fromInteger i
                       a = P.fromInteger 1 :: Exp a
-                  in lift $ RGBA f f f a
+                   in lift $ RGBA f f f a
 
 instance (A.Fractional a, Unlift Exp (RGBA (Exp a)), Plain (RGBA (Exp a)) ~ RGBA a)
     => P.Fractional (Exp (RGBA a)) where
@@ -319,7 +319,7 @@ instance (A.Fractional a, Unlift Exp (RGBA (Exp a)), Plain (RGBA (Exp a)) ~ RGBA
   recip          = lift1 (recip :: RGBA (Exp a) -> RGBA (Exp a))
   fromRational r = let f = P.fromRational r
                        a = P.fromRational 1 :: Exp a
-                   in lift $ RGBA f f f a
+                    in lift $ RGBA f f f a
 
 
 -- Named colours

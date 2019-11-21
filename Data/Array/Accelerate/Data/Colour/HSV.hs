@@ -46,9 +46,10 @@ module Data.Array.Accelerate.Data.Colour.HSV (
 ) where
 
 import Data.Array.Accelerate                                        as A hiding ( clamp )
-import Data.Array.Accelerate.Smart
-import Data.Array.Accelerate.Product                                ( TupleIdx(..), IsProduct(..) )
 import Data.Array.Accelerate.Array.Sugar                            ( Elt(..), Tuple(..) )
+import Data.Array.Accelerate.Product                                ( TupleIdx(..), IsProduct(..) )
+import Data.Array.Accelerate.Smart
+import Data.Array.Accelerate.Type
 
 import Data.Array.Accelerate.Data.Colour.RGB                        ( RGB(..) )
 import Data.Array.Accelerate.Data.Colour.Names                      as C
@@ -152,18 +153,28 @@ value (unlift . fromRGB -> HSV _ _ v) = v
 data HSV a = HSV a a a
   deriving (P.Show, P.Eq, Functor, Typeable, Generic)
 
-instance Elt a => Elt (HSV a)
+instance Elt (HSV Float) where
+  type EltRepr (HSV Float) = V3 Float
+  eltType             = TypeRscalar scalarType
+  toElt (V3 r g b)    = HSV r g b
+  fromElt (HSV r g b) = V3 r g b
+
 instance Elt a => IsProduct Elt (HSV a)
 
-instance (Lift Exp a, Elt (Plain a)) => Lift Exp (HSV a) where
-  type Plain (HSV a)    = HSV (Plain a)
-  lift (HSV h s v)      = Exp . Tuple $ NilTup `SnocTup` lift h `SnocTup` lift s `SnocTup` lift v
+instance Lift Exp (HSV Float) where
+  type Plain (HSV Float) = HSV Float
+  lift = constant
 
-instance Elt a => Unlift Exp (HSV (Exp a)) where
-  unlift c      = let h = Exp $ SuccTupIdx (SuccTupIdx ZeroTupIdx) `Prj` c
-                      s = Exp $ SuccTupIdx ZeroTupIdx `Prj` c
-                      v = Exp $ ZeroTupIdx `Prj` c
-                  in HSV h s v
+instance Lift Exp (HSV (Exp Float)) where
+  type Plain (HSV (Exp Float)) = HSV Float
+  lift (HSV r g b)             = Exp . Tuple $ NilTup `SnocTup` r `SnocTup` g `SnocTup` b
+
+instance Unlift Exp (HSV (Exp Float)) where
+  unlift c =
+    let h = Exp $ SuccTupIdx (SuccTupIdx ZeroTupIdx) `Prj` c
+        s = Exp $ SuccTupIdx ZeroTupIdx `Prj` c
+        v = Exp $ ZeroTupIdx `Prj` c
+     in HSV h s v
 
 instance P.Num a => P.Num (HSV a) where
   (+) (HSV h1 s1 v1 ) (HSV h2 s2 v2)
@@ -183,7 +194,7 @@ instance P.Num a => P.Num (HSV a) where
 
   fromInteger i
         = let f = P.fromInteger i
-          in  HSV f f f
+           in HSV f f f
 
 instance (P.Num a, P.Fractional a) => P.Fractional (HSV a) where
   (/) (HSV h1 s1 v1) (HSV h2 s2 v2)
@@ -194,23 +205,25 @@ instance (P.Num a, P.Fractional a) => P.Fractional (HSV a) where
 
   fromRational r
         = let f = P.fromRational r
-          in  HSV f f f
+           in HSV f f f
 
 
-instance {-# OVERLAPS #-} A.Num a => P.Num (Exp (HSV a)) where
+instance (A.Num a, Unlift Exp (HSV (Exp a)), Plain (HSV (Exp a)) ~ HSV a)
+    => P.Num (Exp (HSV a)) where
   (+)           = lift2 ((+) :: HSV (Exp a) -> HSV (Exp a) -> HSV (Exp a))
   (-)           = lift2 ((-) :: HSV (Exp a) -> HSV (Exp a) -> HSV (Exp a))
   (*)           = lift2 ((*) :: HSV (Exp a) -> HSV (Exp a) -> HSV (Exp a))
   abs           = lift1 (abs :: HSV (Exp a) -> HSV (Exp a))
   signum        = lift1 (signum :: HSV (Exp a) -> HSV (Exp a))
   fromInteger i = let f = P.fromInteger i :: Exp a
-                  in lift $ HSV f f f
+                   in lift $ HSV f f f
 
-instance {-# OVERLAPS #-} A.Fractional a => P.Fractional (Exp (HSV a)) where
+instance (A.Fractional a, Unlift Exp (HSV (Exp a)), Plain (HSV (Exp a)) ~ HSV a)
+    => P.Fractional (Exp (HSV a)) where
   (/)            = lift2 ((/) :: HSV (Exp a) -> HSV (Exp a) -> HSV (Exp a))
   recip          = lift1 (recip :: HSV (Exp a) -> HSV (Exp a))
   fromRational r = let f = P.fromRational r :: Exp a
-                   in lift $ HSV f f f
+                    in lift $ HSV f f f
 
 
 -- Named colours
