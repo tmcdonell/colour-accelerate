@@ -5,3 +5,4 @@ examples/hsv.bmp
 examples/blocks.bmp
 examples/blur_rgb.bmp
 examples/blur_srgb.bmp
+/stack.yaml.lock
