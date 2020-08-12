@@ -13,10 +13,6 @@
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE UndecidableInstances  #-}
 {-# LANGUAGE ViewPatterns          #-}
-#if __GLASGOW_HASKELL__ <= 708
-{-# LANGUAGE OverlappingInstances  #-}
-{-# OPTIONS_GHC -fno-warn-unrecognised-pragmas #-}
-#endif
 -- |
 -- Module      : Data.Array.Accelerate.Data.Colour.RGB
 -- Copyright   : [2016..2019] Trevor L. McDonell
@@ -46,10 +42,8 @@ module Data.Array.Accelerate.Data.Colour.RGB (
 ) where
 
 import Data.Array.Accelerate                                        as A hiding ( clamp )
-import Data.Array.Accelerate.Array.Sugar                            ( Elt(..), EltRepr, Tuple(..) )
-import Data.Array.Accelerate.Product                                ( TupleIdx(..), IsProduct(..) )
-import Data.Array.Accelerate.Smart
-import Data.Array.Accelerate.Type
+import Data.Array.Accelerate.Sugar.Elt
+import Data.Primitive.Vec
 
 import Data.Array.Accelerate.Data.Colour.Names
 import Data.Array.Accelerate.Data.Colour.RGBA                       ( pattern RGBA_ )
@@ -203,23 +197,23 @@ unpackBGR8 w =
 data RGB a = RGB a a a
   deriving (Show, P.Eq, Functor, Typeable, Generic)
 
-pattern RGB_ :: (Elt (RGB a), Elt a) => Exp a -> Exp a -> Exp a -> Exp (RGB a)
-pattern RGB_ r g b = Pattern (r, g, b)
+pattern RGB_ :: (Elt (RGB a), Elt a, VecElt a, EltR (RGB a) ~ Vec3 a) => Exp a -> Exp a -> Exp a -> Exp (RGB a)
+pattern RGB_ r g b = V3 r g b
 {-# COMPLETE RGB_ #-}
 
 instance Elt (RGB Float) where
-  type EltRepr (RGB Float) = V3 Float
-  eltType             = TypeRscalar scalarType
-  toElt (V3 r g b)    = RGB r g b
-  fromElt (RGB r g b) = V3 r g b
+  type EltR (RGB Float) = Vec3 Float
+  eltR                = eltR @(Vec3 Float)
+  tagsR               = tagsR @(Vec3 Float)
+  toElt (Vec3 r g b)  = RGB r g b
+  fromElt (RGB r g b) = Vec3 r g b
 
 instance Elt (RGB Word8) where
-  type EltRepr (RGB Word8) = V3 Word8
-  eltType             = TypeRscalar scalarType
-  toElt (V3 r g b)    = RGB r g b
-  fromElt (RGB r g b) = V3 r g b
-
-instance Elt a => IsProduct Elt (RGB a)
+  type EltR (RGB Word8) = Vec3 Word8
+  eltR                = eltR @(Vec3 Word8)
+  tagsR               = tagsR @(Vec3 Word8)
+  toElt (Vec3 r g b)  = RGB r g b
+  fromElt (RGB r g b) = Vec3 r g b
 
 instance Lift Exp (RGB Float) where
   type Plain (RGB Float) = RGB Float
@@ -231,28 +225,17 @@ instance Lift Exp (RGB Word8) where
 
 instance Lift Exp (RGB (Exp Float)) where
   type Plain (RGB (Exp Float)) = RGB Float
-  lift (RGB r g b)             = Exp . Tuple $ NilTup `SnocTup` r `SnocTup` g `SnocTup` b
+  lift (RGB r g b)             = RGB_ r g b
 
 instance Lift Exp (RGB (Exp Word8)) where
   type Plain (RGB (Exp Word8)) = RGB Word8
-  lift (RGB r g b)             = Exp . Tuple $ NilTup `SnocTup` r `SnocTup` g `SnocTup` b
+  lift (RGB r g b)             = RGB_ r g b
 
 instance Unlift Exp (RGB (Exp Float)) where
-  unlift c =
-    let
-        r = Exp $ SuccTupIdx (SuccTupIdx ZeroTupIdx) `Prj` c
-        g = Exp $ SuccTupIdx ZeroTupIdx `Prj` c
-        b = Exp $ ZeroTupIdx `Prj` c
-    in
-    RGB r g b
+  unlift (RGB_ r g b) = RGB r g b
 
 instance Unlift Exp (RGB (Exp Word8)) where
-  unlift c =
-    let r = Exp $ SuccTupIdx (SuccTupIdx ZeroTupIdx) `Prj` c
-        g = Exp $ SuccTupIdx ZeroTupIdx `Prj` c
-        b = Exp $ ZeroTupIdx `Prj` c
-    in
-    RGB r g b
+  unlift (RGB_ r g b) = RGB r g b
 
 
 instance P.Num a => P.Num (RGB a) where

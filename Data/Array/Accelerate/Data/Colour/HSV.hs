@@ -13,10 +13,6 @@
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE UndecidableInstances  #-}
 {-# LANGUAGE ViewPatterns          #-}
-#if __GLASGOW_HASKELL__ <= 708
-{-# LANGUAGE OverlappingInstances  #-}
-{-# OPTIONS_GHC -fno-warn-unrecognised-pragmas #-}
-#endif
 -- |
 -- Module      : Data.Array.Accelerate.Data.Colour.HSV
 -- Copyright   : [2016..2019] Trevor L. McDonell
@@ -48,17 +44,14 @@ module Data.Array.Accelerate.Data.Colour.HSV (
 ) where
 
 import Data.Array.Accelerate                                        as A hiding ( clamp )
-import Data.Array.Accelerate.Array.Sugar                            ( Elt(..), Tuple(..) )
-import Data.Array.Accelerate.Product                                ( TupleIdx(..), IsProduct(..) )
-import Data.Array.Accelerate.Smart
-import Data.Array.Accelerate.Type
+import Data.Array.Accelerate.Sugar.Elt
+import Data.Primitive.Vec
 
 import Data.Array.Accelerate.Data.Colour.RGB                        ( RGB(..), pattern RGB_ )
 import Data.Array.Accelerate.Data.Colour.Names                      as C
 
 import Data.Functor
 import Data.Typeable
-import Prelude                                                      ( fromInteger )   -- ghc < 8 bug
 import qualified Prelude                                            as P
 
 
@@ -160,17 +153,16 @@ value c =
 data HSV a = HSV a a a
   deriving (P.Show, P.Eq, Functor, Typeable, Generic)
 
-pattern HSV_ :: (Elt (HSV a), Elt a) => Exp a -> Exp a -> Exp a -> Exp (HSV a)
-pattern HSV_ h s v = Pattern (h, s, v)
+pattern HSV_ :: (Elt (HSV a), Elt a, VecElt a, EltR (HSV a) ~ Vec3 a) => Exp a -> Exp a -> Exp a -> Exp (HSV a)
+pattern HSV_ h s v = V3 h s v
 {-# COMPLETE HSV_ #-}
 
 instance Elt (HSV Float) where
-  type EltRepr (HSV Float) = V3 Float
-  eltType             = TypeRscalar scalarType
-  toElt (V3 r g b)    = HSV r g b
-  fromElt (HSV r g b) = V3 r g b
-
-instance Elt a => IsProduct Elt (HSV a)
+  type EltR (HSV Float) = Vec3 Float
+  eltR                = eltR @(Vec3 Float)
+  tagsR               = tagsR @(Vec3 Float)
+  toElt (Vec3 r g b)  = HSV r g b
+  fromElt (HSV r g b) = Vec3 r g b
 
 instance Lift Exp (HSV Float) where
   type Plain (HSV Float) = HSV Float
@@ -178,14 +170,10 @@ instance Lift Exp (HSV Float) where
 
 instance Lift Exp (HSV (Exp Float)) where
   type Plain (HSV (Exp Float)) = HSV Float
-  lift (HSV r g b)             = Exp . Tuple $ NilTup `SnocTup` r `SnocTup` g `SnocTup` b
+  lift (HSV h s v)             = HSV_ h s v
 
 instance Unlift Exp (HSV (Exp Float)) where
-  unlift c =
-    let h = Exp $ SuccTupIdx (SuccTupIdx ZeroTupIdx) `Prj` c
-        s = Exp $ SuccTupIdx ZeroTupIdx `Prj` c
-        v = Exp $ ZeroTupIdx `Prj` c
-     in HSV h s v
+  unlift (HSV_ h s v) = HSV h s v
 
 instance P.Num a => P.Num (HSV a) where
   (+) (HSV h1 s1 v1 ) (HSV h2 s2 v2)

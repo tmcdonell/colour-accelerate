@@ -9,13 +9,10 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE PatternSynonyms       #-}
 {-# LANGUAGE ScopedTypeVariables   #-}
+{-# LANGUAGE TypeApplications      #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE UndecidableInstances  #-}
 {-# LANGUAGE ViewPatterns          #-}
-#if __GLASGOW_HASKELL__ <= 708
-{-# LANGUAGE OverlappingInstances  #-}
-{-# OPTIONS_GHC -fno-warn-unrecognised-pragmas #-}
-#endif
 -- |
 -- Module      : Data.Array.Accelerate.Data.Colour.HSL
 -- Copyright   : [2016..2019] Trevor L. McDonell
@@ -47,17 +44,14 @@ module Data.Array.Accelerate.Data.Colour.HSL (
 ) where
 
 import Data.Array.Accelerate                                        as A hiding ( clamp )
-import Data.Array.Accelerate.Array.Sugar                            ( Elt(..), Tuple(..) )
-import Data.Array.Accelerate.Product                                ( TupleIdx(..), IsProduct(..) )
-import Data.Array.Accelerate.Smart
-import Data.Array.Accelerate.Type
+import Data.Array.Accelerate.Sugar.Elt
+import Data.Primitive.Vec
 
 import Data.Array.Accelerate.Data.Colour.RGB                        ( RGB(..) )
 import Data.Array.Accelerate.Data.Colour.Names                      as C
 
 import Data.Functor
 import Data.Typeable
-import Prelude                                                      ( fromInteger )   -- ghc < 8 bug
 import qualified Prelude                                            as P
 
 
@@ -154,28 +148,23 @@ lightness (unlift . fromRGB -> HSL _ _ l) = l
 data HSL a = HSL a a a
   deriving (P.Show, P.Eq, Functor, Typeable, Generic)
 
-pattern HSL_ :: (Elt (HSL a), Elt a) => Exp a -> Exp a -> Exp a -> Exp (HSL a)
-pattern HSL_ h s l = Pattern (h, s, l)
+pattern HSL_ :: (Elt (HSL a), Elt a, VecElt a, EltR (HSL a) ~ Vec3 a) => Exp a -> Exp a -> Exp a -> Exp (HSL a)
+pattern HSL_ h s l = V3 h s l
 {-# COMPLETE HSL_ #-}
 
 instance Elt (HSL Float) where
-  type EltRepr (HSL Float) = V3 Float
-  eltType             = TypeRscalar scalarType
-  toElt (V3 r g b)    = HSL r g b
-  fromElt (HSL r g b) = V3 r g b
-
-instance Elt a => IsProduct Elt (HSL a)
+  type EltR (HSL Float) = Vec3 Float
+  eltR                = eltR @(Vec3 Float)
+  tagsR               = tagsR @(Vec3 Float)
+  toElt (Vec3 r g b)  = HSL r g b
+  fromElt (HSL r g b) = Vec3 r g b
 
 instance Lift Exp (HSL (Exp Float)) where
   type Plain (HSL (Exp Float)) = HSL Float
-  lift (HSL r g b)             = Exp . Tuple $ NilTup `SnocTup` r `SnocTup` g `SnocTup` b
+  lift (HSL h s l)             = HSL_ h s l
 
 instance Unlift Exp (HSL (Exp Float)) where
-  unlift c =
-    let h = Exp $ SuccTupIdx (SuccTupIdx ZeroTupIdx) `Prj` c
-        s = Exp $ SuccTupIdx ZeroTupIdx `Prj` c
-        l = Exp $ ZeroTupIdx `Prj` c
-     in HSL h s l
+  unlift (HSL_ h s l) = HSL h s l
 
 instance P.Num a => P.Num (HSL a) where
   (+) (HSL h1 s1 v1 ) (HSL h2 s2 v2)

@@ -30,7 +30,7 @@ extra-doc-files:
 library
   default-language:   Haskell2010
   build-depends:
-        base                >= 4.8 && < 4.13
+        base                >= 4.8 && < 5
       , accelerate          >= 1.3
 
   ghc-options:
@@ -58,4 +58,3 @@ source-repository this
   location:           https://github.com/tmcdonell/colour-accelerate
 
 -- vim: nospell
-
