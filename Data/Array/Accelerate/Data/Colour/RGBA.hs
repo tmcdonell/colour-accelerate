@@ -13,13 +13,9 @@
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE UndecidableInstances  #-}
 {-# LANGUAGE ViewPatterns          #-}
-#if __GLASGOW_HASKELL__ <= 708
-{-# LANGUAGE OverlappingInstances  #-}
-{-# OPTIONS_GHC -fno-warn-unrecognised-pragmas #-}
-#endif
 -- |
 -- Module      : Data.Array.Accelerate.Data.Colour.RGBA
--- Copyright   : [2016..2019] Trevor L. McDonell
+-- Copyright   : [2016..2020] Trevor L. McDonell
 -- License     : BSD3
 --
 -- Maintainer  : Trevor L. McDonell <trevor.mcdonell@gmail.com>
@@ -47,10 +43,8 @@ module Data.Array.Accelerate.Data.Colour.RGBA (
 ) where
 
 import Data.Array.Accelerate                                        as A hiding ( clamp )
-import Data.Array.Accelerate.Array.Sugar                            ( Elt(..), EltRepr, Tuple(..) )
-import Data.Array.Accelerate.Product                                ( TupleIdx(..), IsProduct(..) )
-import Data.Array.Accelerate.Smart
-import Data.Array.Accelerate.Type
+import Data.Array.Accelerate.Sugar.Elt
+import Data.Primitive.Vec
 
 import Data.Array.Accelerate.Data.Colour.Names
 import Data.Array.Accelerate.Data.Colour.Internal.Pack              ( word8OfFloat )
@@ -223,23 +217,23 @@ unpackABGR8 w =
 data RGBA a = RGBA a a a a
   deriving (Show, P.Eq, Functor, Typeable, Generic)
 
-pattern RGBA_ :: (Elt (RGBA a), Elt a) => Exp a -> Exp a -> Exp a -> Exp a -> Exp (RGBA a)
-pattern RGBA_ r g b a = Pattern (r, g, b, a)
+pattern RGBA_ :: (Elt (RGBA a), Elt a, VecElt a, EltR (RGBA a) ~ Vec4 a) => Exp a -> Exp a -> Exp a -> Exp a -> Exp (RGBA a)
+pattern RGBA_ r g b a = V4 r g b a
 {-# COMPLETE RGBA_ #-}
 
 instance Elt (RGBA Float) where
-  type EltRepr (RGBA Float) = V4 Float
-  eltType                = TypeRscalar scalarType
-  toElt (V4 r g b a)     = RGBA r g b a
-  fromElt (RGBA r g b a) = V4 r g b a
+  type EltR (RGBA Float) = Vec4 Float
+  eltR                   = eltR @(Vec4 Float)
+  tagsR                  = tagsR @(Vec4 Float)
+  toElt (Vec4 r g b a)   = RGBA r g b a
+  fromElt (RGBA r g b a) = Vec4 r g b a
 
 instance Elt (RGBA Word8) where
-  type EltRepr (RGBA Word8) = V4 Word8
-  eltType                = TypeRscalar scalarType
-  toElt (V4 r g b a)     = RGBA r g b a
-  fromElt (RGBA r g b a) = V4 r g b a
-
-instance Elt a => IsProduct Elt (RGBA a)
+  type EltR (RGBA Word8) = Vec4 Word8
+  eltR                   = eltR @(Vec4 Word8)
+  tagsR                  = tagsR @(Vec4 Word8)
+  toElt (Vec4 r g b a)   = RGBA r g b a
+  fromElt (RGBA r g b a) = Vec4 r g b a
 
 instance Lift Exp (RGBA Float) where
   type Plain (RGBA Float) = RGBA Float
@@ -251,29 +245,17 @@ instance Lift Exp (RGBA Word8) where
 
 instance Lift Exp (RGBA (Exp Float)) where
   type Plain (RGBA (Exp Float)) = RGBA Float
-  lift (RGBA r g b a)           = Exp . Tuple $ NilTup `SnocTup` r `SnocTup` g `SnocTup` b `SnocTup` a
+  lift (RGBA r g b a)           = RGBA_ r g b a
 
 instance Lift Exp (RGBA (Exp Word8)) where
   type Plain (RGBA (Exp Word8)) = RGBA Word8
-  lift (RGBA r g b a)           = Exp . Tuple $ NilTup `SnocTup` r `SnocTup` g `SnocTup` b `SnocTup` a
+  lift (RGBA r g b a)           = RGBA_ r g b a
 
 instance Unlift Exp (RGBA (Exp Float)) where
-  unlift c =
-    let r = Exp $ SuccTupIdx (SuccTupIdx (SuccTupIdx ZeroTupIdx)) `Prj` c
-        g = Exp $ SuccTupIdx (SuccTupIdx ZeroTupIdx) `Prj` c
-        b = Exp $ SuccTupIdx ZeroTupIdx `Prj` c
-        a = Exp $ ZeroTupIdx `Prj` c
-    in
-    RGBA r g b a
+  unlift (RGBA_ r g b a) = RGBA r g b a
 
 instance Unlift Exp (RGBA (Exp Word8)) where
-  unlift c =
-    let r = Exp $ SuccTupIdx (SuccTupIdx (SuccTupIdx ZeroTupIdx)) `Prj` c
-        g = Exp $ SuccTupIdx (SuccTupIdx ZeroTupIdx) `Prj` c
-        b = Exp $ SuccTupIdx ZeroTupIdx `Prj` c
-        a = Exp $ ZeroTupIdx `Prj` c
-    in
-    RGBA r g b a
+  unlift (RGBA_ r g b a) = RGBA r g b a
 
 
 instance P.Num a => P.Num (RGBA a) where

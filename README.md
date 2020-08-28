@@ -1,14 +1,23 @@
-colour-accelerate
-=================
+<div align="center">
+<img width="450" src="https://github.com/AccelerateHS/accelerate/raw/master/images/accelerate-logo-text-v.png?raw=true" alt="henlo, my name is Theia"/>
 
-[![Build Status](https://travis-ci.org/tmcdonell/colour-accelerate.svg?branch=master)](https://travis-ci.org/tmcdonell/colour-accelerate)
+# colour-accelerate
+
+[![GitHub CI](https://github.com/tmcdonell/colour-accelerate/workflows/CI/badge.svg)](https://github.com/tmcdonell/colour-accelerate/actions)
+[![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/AccelerateHS/Lobby)
+<br>
 [![Stackage LTS](https://stackage.org/package/colour-accelerate/badge/lts)](https://stackage.org/lts/package/colour-accelerate)
 [![Stackage Nightly](https://stackage.org/package/colour-accelerate/badge/nightly)](https://stackage.org/nightly/package/colour-accelerate)
 [![Hackage](https://img.shields.io/hackage/v/colour-accelerate.svg)](https://hackage.haskell.org/package/colour-accelerate)
 
+</div>
+
 This package provides data types and operations for dealing with colours in
 Accelerate. For details on Accelerate, refer to the [main
-repository](https://github.com/AccelerateHS/accelerate).
+repository][accelerate].
+
+Contributions and bug reports are welcome!<br>
+Please feel free to contact me through [GitHub][accelerate] or [gitter.im][gitter.im].
 
 
 Example: Blur
@@ -38,3 +47,6 @@ examples directory.
 [blocks]:     https://github.com/tmcdonell/colour-accelerate/raw/master/samples/blocks.bmp
 [blur_srgb]:  https://github.com/tmcdonell/colour-accelerate/raw/master/samples/blur_srgb.bmp
 [blur_rgb]:   https://github.com/tmcdonell/colour-accelerate/raw/master/samples/blur_rgb.bmp
+[accelerate]: https://github.com/AccelerateHS/accelerate
+[gitter.im]:  https://gitter.im/AccelerateHS/Lobby
+
