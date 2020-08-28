@@ -1,6 +1,6 @@
 -- |
 -- Module      : Data.Array.Accelerate.Data.Colour.Internal.Pack
--- Copyright   : [2016..2019] Trevor L. McDonell
+-- Copyright   : [2016..2020] Trevor L. McDonell
 -- License     : BSD3
 --
 -- Maintainer  : Trevor L. McDonell <trevor.mcdonell@gmail.com>
