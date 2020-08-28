@@ -10,10 +10,9 @@ license:              BSD3
 license-file:         LICENSE
 author:               Trevor L. McDonell
 maintainer:           Trevor L. McDonell <trevor.mcdonell@gmail.com>
-copyright:            Copyright (c) [2016..2020]. Trevor L. McDonell <trevor.mcdonell@gmail.com>
 category:             Accelerate, Data, Graphics
 build-type:           Simple
-cabal-version:        >=1.18
+cabal-version:        1.18
 
 homepage:             https://github.com/tmcdonell/colour-accelerate
 bug-reports:          https://github.com/tmcdonell/colour-accelerate/issues
